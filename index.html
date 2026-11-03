@@ -17,100 +17,144 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <style>
+        <style>
         /* ==========================================
-           VARIABLES GLOBALES & RESET
+           VARIABLES GLOBALES & PALETA LOGO
            ========================================== */
         :root {
-            --primary-orange: #FF9900; 
-            --header-bg: #131921;      
-            --secondary-bg: #232F3E;   
-            --text-main: #0F172A;
-            --text-light: #FFFFFF;
-            --bg-body: #F5F7FA;
+            --brand-orange: #FF9900;       /* Color principal del logo */
+            --brand-dark-blue: #0D1B4A;    /* Fondo oscuro del logo/navy profundo */
+            --brand-white: #FFFFFF;
+            --bg-light-gray: #F5F7FA;      /* Fondo cuerpo claro */
             --card-bg: #FFFFFF;
+            --text-main: #1E293B;          /* Texto oscuro legible */
+            --text-muted: #64748B;         /* Texto secundario gris */
             --border-color: #E2E8F0;
-            --success-green: #10B981;
-            --danger-red: #EF4444;
+            
+            /* Estados Stock */
+            --stock-ok: #10B981;           /* Verde */
+            --stock-low: #F59E0B;          /* Amarillo/Naranja suave */
+            --stock-out: #EF4444;          /* Rojo */
+            
+            /* Sombras */
             --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-fab: 0 4px 12px rgba(255, 153, 0, 0.4); /* Sombra naranja brillante */
+            
             --radius-lg: 12px;
             --font-family: 'Inter', sans-serif;
-            
-            /* Dark Mode Defaults */
-            --dark-header-bg: #0B1220;
-            --dark-card-bg: #111A2E;
-            --dark-text-main: #E2E8F0;
-            --dark-border-color: #1E293B;
         }
 
         body.dark-mode {
-            --header-bg: var(--dark-header-bg);
-            --bg-body: #0B1220;
-            --card-bg: var(--dark-card-bg);
-            --text-main: var(--dark-text-main);
-            --border-color: var(--dark-border-color);
+            --bg-light-gray: #0B1220;
+            --card-bg: #111A2E;
+            --text-main: #E2E8F0;
+            --text-muted: #94A3B8;
+            --border-color: #1E293B;
+            --brand-dark-blue: #0B1220; /* Header sigue siendo oscuro en modo noche */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: var(--font-family); background: var(--bg-body); color: var(--text-main); min-height: 100vh; overflow-x: hidden; transition: background 0.3s, color 0.3s; }
+        body { font-family: var(--font-family); background: var(--bg-light-gray); color: var(--text-main); min-height: 100vh; overflow-x: hidden; transition: background 0.3s, color 0.3s; }
         a { text-decoration: none; color: inherit; }
         button { cursor: pointer; border: none; outline: none; font-family: inherit; }
         input, select, textarea { font-family: inherit; }
 
         /* ==========================================
-           HEADER ESTILO AMAZON
+           HEADER COMPACTO MÓVIL
            ========================================== */
         .main-header {
             position: sticky; top: 0; z-index: 100;
-            background: var(--header-bg);
+            background: var(--brand-dark-blue);
             padding: 10px 15px;
             display: flex; align-items: center; justify-content: space-between; gap: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            height: 60px; /* Altura fija para evitar saltos */
         }
 
         .header-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-        #open-drawer-btn { background: transparent; color: var(--text-light); font-size: 1.5rem; padding: 5px; border-radius: 8px; transition: background 0.2s; }
+        #open-drawer-btn { background: transparent; color: var(--brand-white); font-size: 1.5rem; padding: 5px; border-radius: 8px; transition: background 0.2s; }
         #open-drawer-btn:hover { background: rgba(255,255,255,0.1); }
         
-        .logo-link img.site-logo { height: 32px; width: auto; object-fit: contain; filter: brightness(0) invert(1); }
-        @media (prefers-color-scheme: dark) { .logo-link img.site-logo { filter: none; } }
+        /* Logo Ajustado: Solo ícono o texto corto si es necesario */
+        .logo-link img.site-logo { 
+            height: 32px; 
+            width: auto; 
+            object-fit: contain; 
+            filter: brightness(0) invert(1); /* Fuerza blanco sobre fondo navy */
+        }
+        /* Si quieres usar solo el texto "PAGO CONTRA ENTREGA" como fallback visual */
+        .logo-text-only {
+            color: var(--brand-white);
+            font-weight: 800;
+            font-size: 1.1rem;
+            letter-spacing: -0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px; /* Evita que tape otros elementos */
+        }
 
         .search-container {
-            flex-grow: 1; max-width: 600px;
+            flex-grow: 1; 
             display: flex; align-items: center;
-            background: #fff; border-radius: 8px; overflow: hidden;
-            height: 40px; margin: 0 10px;
+            background: rgba(255,255,255,0.1); /* Fondo semitransparente en header */
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px; overflow: hidden;
+            height: 36px; margin: 0 10px;
         }
         #global-search-input {
-            flex-grow: 1; border: none; padding: 0 15px; font-size: 0.95rem; color: #333; outline: none;
+            flex-grow: 1; border: none; padding: 0 10px; font-size: 0.9rem; color: var(--brand-white); outline: none; background: transparent;
         }
+        #global-search-input::placeholder { color: rgba(255,255,255,0.6); }
         #search-submit-btn {
-            background: var(--primary-orange); color: white; width: 45px; height: 100%;
-            display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+            background: var(--brand-orange); color: white; width: 40px; height: 100%;
+            display: flex; align-items: center; justify-content: center; font-size: 1rem;
         }
 
-        .header-right.actions { display: flex; align-items: center; gap: 15px; color: var(--text-light); }
+        .header-right.actions { display: flex; align-items: center; gap: 15px; color: var(--brand-white); }
         #admin-trigger-icon, #theme-toggle-btn {
-            background: transparent; color: var(--text-light); font-size: 1.2rem; opacity: 0.7; transition: opacity 0.2s;
+            background: transparent; color: var(--brand-white); font-size: 1.2rem; opacity: 0.8; transition: opacity 0.2s;
         }
         #admin-trigger-icon:hover, #theme-toggle-btn:hover { opacity: 1; }
 
         /* ==========================================
-           MENÚ LATERAL (DRAWER)
+           BOTÓN FLOTANTE (+ NUEVO) - MEJOR UX MÓVIL
+           ========================================== */
+        .fab-button {
+            position: fixed; bottom: 25px; right: 25px;
+            width: 56px; height: 56px;
+            background: var(--brand-orange);
+            color: white;
+            border-radius: 50%;
+            display: none; /* Oculto por defecto */
+            align-items: center; justify-content: center;
+            font-size: 1.5rem; font-weight: bold;
+            box-shadow: var(--shadow-fab);
+            z-index: 90;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .fab-button:hover { transform: scale(1.05); box-shadow: 0 6px 16px rgba(255, 153, 0, 0.6); }
+        .fab-button:active { transform: scale(0.95); }
+        
+        /* Mostrar solo si es Admin */
+        body.is-admin .fab-button { display: flex; }
+
+        /* ==========================================
+           MENÚ LATERAL (DRAWER) ESTILO AMAZON/RD
            ========================================== */
         .overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200;
-            opacity: 0; visibility: hidden; transition: all 0.3s ease;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200;
+            opacity: 0; visibility: hidden; transition: all 0.3s ease; backdrop-filter: blur(2px);
         }
         .overlay.show { opacity: 1; visibility: visible; }
 
         .side-drawer {
             position: fixed; top: 0; left: 0; bottom: 0; width: 280px;
             background: var(--card-bg); z-index: 300;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+            box-shadow: 4px 0 20px rgba(0,0,0,0.15);
             transform: translateX(-100%); 
-            transition: transform 0.3s ease-in-out;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex; flex-direction: column;
             overflow-y: auto;
         }
@@ -118,34 +162,36 @@
 
         .drawer-header {
             padding: 20px 15px; border-bottom: 1px solid var(--border-color);
-            display: flex; align-items: center; gap: 10px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--brand-dark-blue); color: white;
         }
-        #close-drawer-btn { background: transparent; font-size: 1.5rem; color: var(--text-main); }
-        .drawer-header h2 { font-size: 1.2rem; font-weight: 700; }
+        .drawer-header h2 { font-size: 1.1rem; font-weight: 700; margin:0; }
+        #close-drawer-btn { background: transparent; color: white; font-size: 1.5rem; }
 
         .drawer-nav { flex: 1; padding: 10px 0; }
         .cat-item {
-            display: block; padding: 12px 20px; font-size: 0.95rem; font-weight: 500;
-            color: var(--text-main); transition: background 0.2s;
-            border-left: 3px solid transparent;
+            display: block; padding: 14px 20px; font-size: 0.95rem; font-weight: 500;
+            color: var(--text-main); transition: all 0.2s;
+            border-left: 4px solid transparent;
+            display: flex; align-items: center; gap: 10px;
         }
         .cat-item:hover, .cat-item.active {
-            background: rgba(255, 153, 0, 0.1); color: var(--primary-orange); border-left-color: var(--primary-orange);
+            background: rgba(255, 153, 0, 0.08); color: var(--brand-orange); border-left-color: var(--brand-orange);
         }
-        .cat-item i { margin-right: 10px; width: 20px; text-align: center; }
+        .cat-item i { font-size: 1.1rem; width: 24px; text-align: center; }
 
-        .drawer-footer { padding: 20px; font-size: 0.8rem; color: #64748B; border-top: 1px solid var(--border-color); }
+        .drawer-footer { padding: 20px; font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--border-color); text-align: center; }
 
         /* ==========================================
-           GRID PRODUCTOS & CARDS
+           GRID PRODUCTOS & CARDS LIMPIAS
            ========================================== */
-        .content-wrapper { padding: 20px 15px; max-width: 1200px; margin: 0 auto; }
+        .content-wrapper { padding: 20px 15px; max-width: 1200px; margin: 0 auto; padding-bottom: 80px; /* Espacio para FAB */ }
         
         .products-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             gap: 15px; margin-top: 10px;
         }
-        @media (min-width: 768px) { .products-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; } }
+        @media (min-width: 768px) { .products-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; } }
 
         .product-card {
             background: var(--card-bg); border-radius: var(--radius-lg); overflow: hidden;
@@ -163,15 +209,16 @@
         .badge-stock {
             position: absolute; top: 8px; right: 8px; padding: 4px 8px; border-radius: 6px;
             font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+            backdrop-filter: blur(4px);
         }
-        .badge-out { background: #fee2e2; color: #b91c1c; }
-        .badge-low { background: #fef3c7; color: #92400e; }
-        .badge-in { background: #d1fae5; color: #065f46; }
+        .badge-out { background: rgba(239, 68, 68, 0.9); color: white; }
+        .badge-low { background: rgba(245, 158, 11, 0.9); color: white; }
+        .badge-in { background: rgba(16, 185, 129, 0.9); color: white; }
 
         .card-info { padding: 12px; flex: 1; display: flex; flex-direction: column; }
-        .card-category { font-size: 0.7rem; color: #64748B; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
-        .card-title { font-size: 0.9rem; font-weight: 600; line-height: 1.3; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .card-price { font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 10px; }
+        .card-category { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+        .card-title { font-size: 0.9rem; font-weight: 600; line-height: 1.3; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--text-main); }
+        .card-price { font-size: 1.1rem; font-weight: 800; color: var(--brand-orange); margin-bottom: 10px; } /* Precio destacado naranja */
         .card-price span { font-size: 0.8rem; font-weight: 600; vertical-align: super; }
 
         .btn-request {
@@ -183,29 +230,31 @@
         .btn-request:active { box-shadow: 0 1px 0 #b8860b; transform: translateY(1px); }
         .btn-request:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); }
 
-        /* Botones Admin Overlay */
+        /* Botones Admin Overlay (Edición rápida) */
         .admin-controls {
             position: absolute; top: 5px; left: 5px; display: none; gap: 5px; z-index: 10;
         }
         body.is-admin .admin-controls { display: flex; }
         .ctrl-btn {
-            width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.9);
+            width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.95);
             display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2); cursor: pointer; border: none;
+            transition: background 0.2s;
         }
+        .ctrl-btn:hover { background: white; }
         .ctrl-edit { color: #2563eb; }
         .ctrl-del { color: #dc2626; }
         .ctrl-supplier { color: #16a34a; }
 
         /* Empty State & Loading */
-        .empty-message { text-align: center; padding: 60px 20px; color: #64748B; }
-        .empty-message span { font-size: 3rem; display: block; margin-bottom: 15px; }
-        .loading-state { grid-column: 1 / -1; text-align: center; padding: 40px; color: #64748B; }
-        .spinner { width: 30px; height: 30px; border: 3px solid #e2e8f0; border-top-color: var(--primary-orange); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        .empty-message { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .empty-message span { font-size: 3rem; display: block; margin-bottom: 15px; opacity: 0.5; }
+        .loading-state { grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted); }
+        .spinner { width: 30px; height: 30px; border: 3px solid #e2e8f0; border-top-color: var(--brand-orange); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* ==========================================
-           MODALES GENÉRICOS
+           MODALES GENÉRICOS (LIMPIOS)
            ========================================== */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000;
@@ -224,25 +273,27 @@
         .modal-header {
             padding: 15px 20px; border-bottom: 1px solid var(--border-color);
             display: flex; justify-content: space-between; align-items: center;
-            background: var(--secondary-bg); color: white; border-radius: 16px 16px 0 0;
+            background: var(--brand-dark-blue); color: white; border-radius: 16px 16px 0 0;
         }
         .modal-header h3 { font-size: 1.1rem; font-weight: 700; }
         .close-modal { background: transparent; color: white; font-size: 1.5rem; line-height: 1; }
 
         .modal-body { padding: 20px; }
         .form-group { margin-bottom: 15px; }
-        .form-label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #475569; }
+        .form-label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: var(--text-muted); }
         .form-input {
             width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px;
-            font-size: 0.95rem; background: #f8fafc; transition: border 0.2s;
+            font-size: 0.95rem; background: #f8fafc; transition: border 0.2s; color: var(--text-main);
         }
-        .form-input:focus { border-color: var(--primary-orange); outline: none; background: white; }
+        .form-input:focus { border-color: var(--brand-orange); outline: none; background: white; }
         textarea.form-input { resize: vertical; min-height: 80px; }
 
         .btn-primary {
-            width: 100%; padding: 12px; background: var(--primary-orange); color: white;
+            width: 100%; padding: 12px; background: var(--brand-orange); color: white;
             font-weight: 700; border-radius: 8px; font-size: 1rem; margin-top: 10px;
+            box-shadow: 0 2px 4px rgba(255, 153, 0, 0.3);
         }
+        .btn-primary:hover { background: #E88B00; }
         .btn-secondary {
             width: 100%; padding: 12px; background: #e2e8f0; color: #475569;
             font-weight: 600; border-radius: 8px; font-size: 0.95rem; margin-top: 10px;
@@ -282,29 +333,32 @@
         </footer>
     </aside>
 
-    <!-- HEADER -->
+        <!-- HEADER COMPACTO -->
     <header class="main-header">
         <div class="header-left">
             <button id="open-drawer-btn">☰</button>
             <a href="/" class="logo-link">
-                <img src="assets/logo-horizontal.png" alt="Logo" class="site-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-                <span style="display:none; color:white; font-weight:800; font-size:1.2rem;">PAGO CONTRA ENTREGA</span>
+                <!-- Intenta cargar imagen, si falla muestra texto simple -->
+                <img src="assets/logo-horizontal.png" alt="Logo" class="site-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block'">
+                <span id="fallback-logo" class="logo-text-only" style="display:none;">PAGO CONTRA ENTREGA</span>
             </a>
         </div>
         
         <div class="search-container">
-            <input type="text" id="global-search-input" placeholder="Buscar productos...">
+            <input type="text" id="global-search-input" placeholder="Buscar...">
             <button id="search-submit-btn">🔍</button>
         </div>
 
-                <div class="header-right actions">
-            <!-- Botón Agregar Producto (Solo visible si es admin) -->
-            <button id="add-product-btn" class="ctrl-btn ctrl-add hidden" style="background:#10b981; color:white; width:auto; padding:0 12px; font-weight:700;" onclick="openNewProductModal()">➕ Nuevo</button>
-            
+        <div class="header-right actions">
             <button id="admin-trigger-icon" title="Admin">⚙️</button>
             <button id="theme-toggle-btn" title="Tema">🌙</button>
         </div>
     </header>
+
+    <!-- BOTÓN FLOTANTE AGREGAR PRODUCTO (Solo Admin) -->
+    <button id="add-product-btn" class="fab-button" onclick="openNewProductModal()" title="Nuevo Producto">
+        ➕
+    </button>
 
     <!-- CONTENIDO PRINCIPAL -->
     <main class="content-wrapper">
