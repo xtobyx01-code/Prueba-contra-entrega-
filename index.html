@@ -99,11 +99,15 @@
             object-fit: contain; 
             filter: brightness(0) invert(1); /* Blanco puro sobre navy */
         }
-        .logo-text-only {
+                .logo-text-only {
             color: var(--brand-white);
             font-weight: 800;
-            font-size: 1rem;
+            font-size: 0.9rem; /* Reducido para caber mejor */
             letter-spacing: -0.5px;
+            white-space: nowrap; /* Evita saltos de línea raros */
+            overflow: hidden;
+            text-overflow: ellipsis; /* Pone "..." si sobra */
+            max-width: 140px; /* Límite estricto ancho */
         }
 
         .header-right.actions { display: flex; align-items: center; gap: 15px; color: var(--brand-white); }
