@@ -60,17 +60,82 @@
         button { cursor: pointer; border: none; outline: none; font-family: inherit; }
         input, select, textarea { font-family: inherit; }
 
-        /* ==========================================
-           HEADER COMPACTO MÓVIL
+                /* ==========================================
+           HEADER DOBLE FILA ESTILO AMAZON
            ========================================== */
         .main-header {
-            position: sticky; top: 0; z-index: 100;
+            position: relative; /* Cambiado de sticky a relative para control manual */
             background: var(--brand-dark-blue);
-            padding: 10px 15px;
-            display: flex; align-items: center; justify-content: space-between; gap: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            height: 60px; /* Altura fija para evitar saltos */
+            width: 100%;
+            z-index: 100;
+            transition: transform 0.3s ease-in-out;
         }
+
+        /* Ocultar header al scrollear hacia abajo */
+        .main-header.hidden-on-scroll {
+            transform: translateY(-100%);
+        }
+
+        /* --- FILA SUPERIOR: Logo + Acciones --- */
+        .header-row-top {
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 8px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header-left { display: flex; align-items: center; gap: 10px; }
+        #open-drawer-btn { 
+            background: transparent; color: var(--brand-white); font-size: 1.4rem; 
+            padding: 4px; border-radius: 6px; transition: background 0.2s; 
+        }
+        #open-drawer-btn:hover { background: rgba(255,255,255,0.1); }
+        
+        /* Logo Ajustado Vertical/Cuadrado si es posible, o texto corto */
+        .logo-link img.site-logo { 
+            height: 28px; /* Tamaño compacto tipo Amazon */
+            width: auto; 
+            object-fit: contain; 
+            filter: brightness(0) invert(1); /* Blanco puro sobre navy */
+        }
+        .logo-text-only {
+            color: var(--brand-white);
+            font-weight: 800;
+            font-size: 1rem;
+            letter-spacing: -0.5px;
+        }
+
+        .header-right.actions { display: flex; align-items: center; gap: 15px; color: var(--brand-white); }
+        #admin-trigger-icon, #theme-toggle-btn {
+            background: transparent; color: var(--brand-white); font-size: 1.1rem; opacity: 0.9;
+        }
+
+        /* --- FILA INFERIOR: Buscador Grande --- */
+        .header-row-search {
+            padding: 8px 15px 12px 15px; /* Más espacio abajo */
+            background: var(--brand-dark-blue);
+        }
+
+        .search-container {
+            display: flex; align-items: center;
+            background: var(--brand-white); /* Fondo BLANCO puro como Amazon */
+            border-radius: 8px; overflow: hidden;
+            height: 42px; /* Altura generosa táctil */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        #global-search-input {
+            flex-grow: 1; border: none; padding: 0 15px; font-size: 0.95rem; 
+            color: #131921; outline: none; background: transparent;
+        }
+        #global-search-input::placeholder { color: #64748B; }
+        
+        #search-submit-btn {
+            background: var(--brand-orange); color: white; width: 45px; height: 100%;
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+            border-left: 1px solid rgba(0,0,0,0.05);
+        }
+        #search-submit-btn:hover { background: #E88B00; }
 
         .header-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         #open-drawer-btn { background: transparent; color: var(--brand-white); font-size: 1.5rem; padding: 5px; border-radius: 8px; transition: background 0.2s; }
@@ -333,25 +398,30 @@
         </footer>
     </aside>
 
-        <!-- HEADER COMPACTO -->
-    <header class="main-header">
-        <div class="header-left">
-            <button id="open-drawer-btn">☰</button>
-            <a href="/" class="logo-link">
-                <!-- Intenta cargar imagen, si falla muestra texto simple -->
-                <img src="assets/logo-horizontal.png" alt="Logo" class="site-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='block'">
-                <span id="fallback-logo" class="logo-text-only" style="display:none;">PAGO CONTRA ENTREGA</span>
-            </a>
-        </div>
-        
-        <div class="search-container">
-            <input type="text" id="global-search-input" placeholder="Buscar...">
-            <button id="search-submit-btn">🔍</button>
+            <!-- HEADER ESTILO AMAZON (DOS FILAS) -->
+    <header class="main-header" id="sticky-header">
+        <!-- FILA 1: Logo Izquierda / Admin Derecha -->
+        <div class="header-row-top">
+            <div class="header-left">
+                <button id="open-drawer-btn">☰</button>
+                <a href="/" class="logo-link">
+                    <img src="assets/logo-horizontal.png" alt="Logo" class="site-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex'">
+                    <span id="fallback-logo" class="logo-text-only" style="display:none; align-items:center;">PAGO CONTRA ENTREGA</span>
+                </a>
+            </div>
+            
+            <div class="header-right actions">
+                <button id="admin-trigger-icon" title="Admin">⚙️</button>
+                <button id="theme-toggle-btn" title="Tema">🌙</button>
+            </div>
         </div>
 
-        <div class="header-right actions">
-            <button id="admin-trigger-icon" title="Admin">⚙️</button>
-            <button id="theme-toggle-btn" title="Tema">🌙</button>
+        <!-- FILA 2: Buscador Full Width -->
+        <div class="header-row-search">
+            <div class="search-container">
+                <input type="text" id="global-search-input" placeholder="Buscar productos...">
+                <button id="search-submit-btn">🔍</button>
+            </div>
         </div>
     </header>
 
@@ -1043,10 +1113,30 @@
             });
         }
 
+                // ==========================================
+        // LÓGICA SCROLL AUTO-HIDE HEADER (AMAZON STYLE)
         // ==========================================
-        // EVENT LISTENERS UI
-        // ==========================================
-        function setupEventListeners() {
+        let lastScrollTop = 0;
+        const headerElement = document.getElementById('sticky-header');
+
+        window.addEventListener('scroll', () => {
+            if (!headerElement) return;
+            
+            let st = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // Umbral mínimo para activar (evita micro-jitters)
+            if (Math.abs(lastScrollTop - st) <= 5) return;
+
+            if (st > lastScrollTop && st > 100) {
+                // Scrolling DOWN -> Hide Header
+                headerElement.classList.add('hidden-on-scroll');
+            } else {
+                // Scrolling UP -> Show Header
+                headerElement.classList.remove('hidden-on-scroll');
+            }
+            
+            lastScrollTop = st <= 0 ? 0 : st; // For Mobile or negative scrolling
+        }, { passive: true });
             const drawerBtn = document.getElementById('open-drawer-btn');
             const closeBtn = document.getElementById('close-drawer-btn');
             const overlay = document.getElementById('menu-overlay');
