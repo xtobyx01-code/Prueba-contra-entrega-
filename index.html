@@ -651,13 +651,68 @@
             } catch (e) { console.warn("Settings load fail", e); }
         }
 
-                async function fetchProducts() {
+                        async function fetchProducts() {
+            const area = document.getElementById('products-display-area');
+            if(area) area.innerHTML = '<div class="loading-state"><div class="spinner"></div>Intentando conectar...</div>';
+            
             console.log("--- Iniciando carga de productos ---");
             try {
                 // 1. Verificar conexión básica
                 if (!supabaseClient) {
                     throw new Error("Supabase Client no inicializado");
                 }
+                
+                if(area) area.innerHTML = '<div class="loading-state"><div class="spinner"></div>Consultando base de datos...</div>';
+
+                // 2. Obtener datos CON TIMEOUT DE SEGURIDAD (5 segundos)
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error("Tiempo de espera agotado")), 5000)
+                );
+
+                const queryPromise = supabaseClient
+                    .from('products')
+                    .select('*')
+                    .eq('is_active', true)
+                    .order('created_at', { ascending: false });
+
+                const result = await Promise.race([queryPromise, timeoutPromise]);
+                const { data: prods, error: errP } = result;
+
+                if (errP) {
+                    console.error("Error específico Supabase:", errP.message);
+                    throw errP;
+                }
+                
+                console.log("Productos recibidos:", prods?.length || 0);
+                state.products = prods || [];
+
+                if(area && state.products.length === 0) {
+                     area.innerHTML = '<div class="empty-message"><span>📦</span><p>No hay productos activos.</p></div>';
+                     return;
+                }
+
+                // 3. Renderizar UI
+                renderSidebarMenu();
+                renderProductGrid();
+                
+                // 4. Hash handling seguro
+                if(window.location.hash && typeof handleHashChange === 'function') {
+                    setTimeout(handleHashChange, 500);
+                }
+
+            } catch (e) {
+                console.error("ERROR CRÍTICO FETCH:", e);
+                if(area) {
+                    area.innerHTML = `
+                        <div class="empty-message">
+                            <span style="color:red;">⚠️</span>
+                            <p>Fallo de conexión:<br><small>${escapeHtml(e.message)}</small></p>
+                            <button onclick="location.reload()" class="btn-primary" style="margin-top:10px;">Reintentar</button>
+                        </div>
+                    `;
+                }
+            }
+        }
 
                 // 2. Obtener datos
                 const { data: prods, error: errP } = await supabaseClient
