@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pago Contra Entrega - Tienda COD</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/favicon-square.png">
+    <meta name="theme-color" content="#FF9900">
+    
+    <!-- Librería Oficial Supabase JS v2 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Fuentes Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==========================================
+           VARIABLES GLOBALES & RESET
+           ========================================== */
+        :root {
+            --primary-orange: #FF9900; 
+            --header-bg: #131921;      
+            --secondary-bg: #232F3E;   
+            --text-main: #0F172A;
+            --text-light: #FFFFFF;
+            --bg-body: #F5F7FA;
+            --card-bg: #FFFFFF;
+            --border-color: #E2E8F0;
+            --success-green: #10B981;
+            --danger-red: #EF4444;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --radius-lg: 12px;
+            --font-family: 'Inter', sans-serif;
+            
+            /* Dark Mode Defaults */
+            --dark-header-bg: #0B1220;
+            --dark-card-bg: #111A2E;
+            --dark-text-main: #E2E8F0;
+            --dark-border-color: #1E293B;
+        }
+
+        body.dark-mode {
+            --header-bg: var(--dark-header-bg);
+            --bg-body: #0B1220;
+            --card-bg: var(--dark-card-bg);
+            --text-main: var(--dark-text-main);
+            --border-color: var(--dark-border-color);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-family); background: var(--bg-body); color: var(--text-main); min-height: 100vh; overflow-x: hidden; transition: background 0.3s, color 0.3s; }
+        a { text-decoration: none; color: inherit; }
+        button { cursor: pointer; border: none; outline: none; font-family: inherit; }
+        input, select, textarea { font-family: inherit; }
+
+        /* ==========================================
+           HEADER ESTILO AMAZON
+           ========================================== */
+        .main-header {
+            position: sticky; top: 0; z-index: 100;
+            background: var(--header-bg);
+            padding: 10px 15px;
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        #open-drawer-btn { background: transparent; color: var(--text-light); font-size: 1.5rem; padding: 5px; border-radius: 8px; transition: background 0.2s; }
+        #open-drawer-btn:hover { background: rgba(255,255,255,0.1); }
+        
+        .logo-link img.site-logo { height: 32px; width: auto; object-fit: contain; filter: brightness(0) invert(1); }
+        @media (prefers-color-scheme: dark) { .logo-link img.site-logo { filter: none; } }
+
+        .search-container {
+            flex-grow: 1; max-width: 600px;
+            display: flex; align-items: center;
+            background: #fff; border-radius: 8px; overflow: hidden;
+            height: 40px; margin: 0 10px;
+        }
+        #global-search-input {
+            flex-grow: 1; border: none; padding: 0 15px; font-size: 0.95rem; color: #333; outline: none;
+        }
+        #search-submit-btn {
+            background: var(--primary-orange); color: white; width: 45px; height: 100%;
+            display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+        }
+
+        .header-right.actions { display: flex; align-items: center; gap: 15px; color: var(--text-light); }
+        #admin-trigger-icon, #theme-toggle-btn {
+            background: transparent; color: var(--text-light); font-size: 1.2rem; opacity: 0.7; transition: opacity 0.2s;
+        }
+        #admin-trigger-icon:hover, #theme-toggle-btn:hover { opacity: 1; }
+
+        /* ==========================================
+           MENÚ LATERAL (DRAWER)
+           ========================================== */
+        .overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200;
+            opacity: 0; visibility: hidden; transition: all 0.3s ease;
+        }
+        .overlay.show { opacity: 1; visibility: visible; }
+
+        .side-drawer {
+            position: fixed; top: 0; left: 0; bottom: 0; width: 280px;
+            background: var(--card-bg); z-index: 300;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+            transform: translateX(-100%); 
+            transition: transform 0.3s ease-in-out;
+            display: flex; flex-direction: column;
+            overflow-y: auto;
+        }
+        .side-drawer.open { transform: translateX(0); } 
+
+        .drawer-header {
+            padding: 20px 15px; border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; gap: 10px;
+        }
+        #close-drawer-btn { background: transparent; font-size: 1.5rem; color: var(--text-main); }
+        .drawer-header h2 { font-size: 1.2rem; font-weight: 700; }
+
+        .drawer-nav { flex: 1; padding: 10px 0; }
+        .cat-item {
+            display: block; padding: 12px 20px; font-size: 0.95rem; font-weight: 500;
+            color: var(--text-main); transition: background 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .cat-item:hover, .cat-item.active {
+            background: rgba(255, 153, 0, 0.1); color: var(--primary-orange); border-left-color: var(--primary-orange);
+        }
+        .cat-item i { margin-right: 10px; width: 20px; text-align: center; }
+
+        .drawer-footer { padding: 20px; font-size: 0.8rem; color: #64748B; border-top: 1px solid var(--border-color); }
+
+        /* ==========================================
+           GRID PRODUCTOS & CARDS
+           ========================================== */
+        .content-wrapper { padding: 20px 15px; max-width: 1200px; margin: 0 auto; }
+        
+        .products-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px; margin-top: 10px;
+        }
+        @media (min-width: 768px) { .products-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; } }
+
+        .product-card {
+            background: var(--card-bg); border-radius: var(--radius-lg); overflow: hidden;
+            box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s;
+            display: flex; flex-direction: column; position: relative;
+            border: 1px solid var(--border-color);
+        }
+        .product-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+
+        .card-image-wrap {
+            aspect-ratio: 1/1; background: #f8fafc; position: relative; overflow: hidden;
+        }
+        .card-img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .badge-stock {
+            position: absolute; top: 8px; right: 8px; padding: 4px 8px; border-radius: 6px;
+            font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .badge-out { background: #fee2e2; color: #b91c1c; }
+        .badge-low { background: #fef3c7; color: #92400e; }
+        .badge-in { background: #d1fae5; color: #065f46; }
+
+        .card-info { padding: 12px; flex: 1; display: flex; flex-direction: column; }
+        .card-category { font-size: 0.7rem; color: #64748B; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+        .card-title { font-size: 0.9rem; font-weight: 600; line-height: 1.3; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-price { font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 10px; }
+        .card-price span { font-size: 0.8rem; font-weight: 600; vertical-align: super; }
+
+        .btn-request {
+            width: 100%; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.85rem;
+            background: linear-gradient(to bottom, #fcd200, #f7a600); color: #131921;
+            border: 1px solid #ffa41c; box-shadow: 0 2px 0 #b8860b;
+            transition: all 0.1s; margin-top: auto;
+        }
+        .btn-request:active { box-shadow: 0 1px 0 #b8860b; transform: translateY(1px); }
+        .btn-request:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); }
+
+        /* Botones Admin Overlay */
+        .admin-controls {
+            position: absolute; top: 5px; left: 5px; display: none; gap: 5px; z-index: 10;
+        }
+        body.is-admin .admin-controls { display: flex; }
+        .ctrl-btn {
+            width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.9);
+            display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2); cursor: pointer; border: none;
+        }
+        .ctrl-edit { color: #2563eb; }
+        .ctrl-del { color: #dc2626; }
+        .ctrl-supplier { color: #16a34a; }
+
+        /* Empty State & Loading */
+        .empty-message { text-align: center; padding: 60px 20px; color: #64748B; }
+        .empty-message span { font-size: 3rem; display: block; margin-bottom: 15px; }
+        .loading-state { grid-column: 1 / -1; text-align: center; padding: 40px; color: #64748B; }
+        .spinner { width: 30px; height: 30px; border: 3px solid #e2e8f0; border-top-color: var(--primary-orange); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ==========================================
+           MODALES GENÉRICOS
+           ========================================== */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000;
+            display: flex; align-items: center; justify-content: center; padding: 20px;
+            opacity: 0; visibility: hidden; transition: all 0.3s ease; backdrop-filter: blur(2px);
+        }
+        .modal-overlay.show { opacity: 1; visibility: visible; }
+        
+        .modal-content {
+            background: var(--card-bg); border-radius: 16px; width: 100%; max-width: 450px;
+            max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            transform: scale(0.95); transition: transform 0.3s ease;
+        }
+        .modal-overlay.show .modal-content { transform: scale(1); }
+
+        .modal-header {
+            padding: 15px 20px; border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--secondary-bg); color: white; border-radius: 16px 16px 0 0;
+        }
+        .modal-header h3 { font-size: 1.1rem; font-weight: 700; }
+        .close-modal { background: transparent; color: white; font-size: 1.5rem; line-height: 1; }
+
+        .modal-body { padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #475569; }
+        .form-input {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px;
+            font-size: 0.95rem; background: #f8fafc; transition: border 0.2s;
+        }
+        .form-input:focus { border-color: var(--primary-orange); outline: none; background: white; }
+        textarea.form-input { resize: vertical; min-height: 80px; }
+
+        .btn-primary {
+            width: 100%; padding: 12px; background: var(--primary-orange); color: white;
+            font-weight: 700; border-radius: 8px; font-size: 1rem; margin-top: 10px;
+        }
+        .btn-secondary {
+            width: 100%; padding: 12px; background: #e2e8f0; color: #475569;
+            font-weight: 600; border-radius: 8px; font-size: 0.95rem; margin-top: 10px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: #1e293b; color: white; padding: 12px 24px; border-radius: 50px;
+            font-size: 0.9rem; font-weight: 500; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            z-index: 2000; opacity: 0; transition: all 0.3s ease; pointer-events: none;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.error { background: #ef4444; }
+        .toast.success { background: #10b981; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="light-mode">
+
+    <!-- Overlay Menú -->
+    <div id="menu-overlay" class="overlay"></div>
+
+    <!-- MENÚ LATERAL -->
+    <aside id="side-menu" class="side-drawer">
+        <div class="drawer-header">
+            <button id="close-drawer-btn">✕</button>
+            <h2>Categorías</h2>
+        </div>
+        <nav id="category-nav-list" class="drawer-nav">
+            <a href="#" data-cat="" class="cat-item active"><i>🏠</i> Todos los productos</a>
+        </nav>
+        <footer class="drawer-footer">
+            <p>&copy; 2026 Pago Contra Entrega</p>
+            <small>Gestión logística integrada vía WhatsApp.</small>
+        </footer>
+    </aside>
+
+    <!-- HEADER -->
+    <header class="main-header">
+        <div class="header-left">
+            <button id="open-drawer-btn">☰</button>
+            <a href="/" class="logo-link">
+                <img src="assets/logo-horizontal.png" alt="Logo" class="site-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                <span style="display:none; color:white; font-weight:800; font-size:1.2rem;">PAGO CONTRA ENTREGA</span>
+            </a>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" id="global-search-input" placeholder="Buscar productos...">
+            <button id="search-submit-btn">🔍</button>
+        </div>
+
+                <div class="header-right actions">
+            <!-- Botón Agregar Producto (Solo visible si es admin) -->
+            <button id="add-product-btn" class="ctrl-btn ctrl-add hidden" style="background:#10b981; color:white; width:auto; padding:0 12px; font-weight:700;" onclick="openNewProductModal()">➕ Nuevo</button>
+            
+            <button id="admin-trigger-icon" title="Admin">⚙️</button>
+            <button id="theme-toggle-btn" title="Tema">🌙</button>
+        </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="content-wrapper">
+        <div id="products-display-area" class="products-grid">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                Cargando catálogo...
+            </div>
+        </div>
+        
+        <div id="empty-state-msg" class="empty-message hidden">
+            <span>😕</span>
+            <p>No hay productos disponibles.</p>
+        </div>
+    </main>
+
+    <!-- MODAL SOLICITUD PEDIDO -->
+    <div id="modal-request-order" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📲 Solicitar Pedido</h3>
+                <button class="close-modal" onclick="closeModal('modal-request-order')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="background:#FFF7ED; border:1px solid #FED7AA; padding:10px; border-radius:8px; margin-bottom:15px; font-size:0.85rem; color:#9A3412;">
+                    <strong>Producto:</strong> <span id="req-prod-name">...</span><br>
+                    <strong>Precio:</strong> RD$ <span id="req-prod-price">...</span>
+                </div>
+                
+                <form id="form-request">
+                    <input type="hidden" id="req-product-id">
+                    <div class="form-group">
+                        <label class="form-label">Nombre Completo *</label>
+                        <input type="text" id="req-name" class="form-input" required placeholder="Ej: Juan Pérez">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teléfono WhatsApp *</label>
+                        <input type="tel" id="req-phone" class="form-input" required placeholder="809... o 829...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Dirección / Zona (Opcional)</label>
+                        <input type="text" id="req-address" class="form-input" placeholder="Ej: Ensanche Naco">
+                    </div>
+                    
+                    <!-- HONEYPOT ANTI-BOTS -->
+                    <input type="text" name="website_url" tabindex="-1" autocomplete="off" style="position:absolute; left:-9999px;" id="honeypot-field">
+
+                    <button type="submit" class="btn-primary">Enviar Solicitud por WhatsApp</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal('modal-request-order')">Cancelar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LOGIN ADMIN -->
+    <div id="modal-admin-login" class="modal-overlay">
+        <div class="modal-content" style="max-width:350px;">
+            <div class="modal-header" style="background:#131921;">
+                <h3>🔑 Acceso Administrador</h3>
+                <button class="close-modal" onclick="closeModal('modal-admin-login')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-admin-login">
+                    <div class="form-group">
+                        <label class="form-label">Correo Electrónico</label>
+                        <input type="hidden" id="adm-email" value="xtobyx001@gmail.com"> <!-- Valor oculto pero presente para JS -->
+<label class="form-label">Usuario Admin</label>
+<input type="text" class="form-input" value="ADMIN" disabled style="background:#f1f5f9; color:#64748b;">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" id="adm-pass" class="form-input" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn-primary">Iniciar Sesión</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR/AGREGAR PRODUCTO -->
+    <div id="modal-product-editor" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="editor-title">Editar Producto</h3>
+                <button class="close-modal" onclick="closeModal('modal-product-editor')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-product-editor">
+                    <input type="hidden" id="ed-id">
+                    <div class="form-group"><label class="form-label">Nombre *</label><input type="text" id="ed-name" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">Precio (RD$) *</label><input type="number" step="0.01" id="ed-price" class="form-input" required></div>
+                    <div class="form-group"><label class="form-label">Categoría</label><input type="text" id="ed-category" class="form-input" list="cat-options" placeholder="Ej: Ropa"></div>
+                    <datalist id="cat-options"></datalist>
+                    <div class="form-group"><label class="form-label">Stock</label><input type="number" id="ed-stock" class="form-input" value="0"></div>
+                    <div class="form-group"><label class="form-label">URL Imagen</label><input type="url" id="ed-image" class="form-input" placeholder="https://..."></div>
+                    <div class="form-group"><label class="form-label">WhatsApp Proveedor</label><input type="tel" id="ed-supplier" class="form-input" placeholder="+1809..."></div>
+                    <div class="form-group" style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="ed-active" checked><label for="ed-active">Visible en Tienda</label></div>
+                    <button type="submit" class="btn-primary">Guardar Cambios</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal('modal-product-editor')">Cancelar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+        <!-- MODAL NUEVO PRODUCTO / EDITAR CON FOTO -->
+    <div id="modal-new-product" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="new-prod-title">➕ Agregar Producto</h3>
+                <button class="close-modal" onclick="closeModal('modal-new-product')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-new-product">
+                    <input type="hidden" id="np-id"> <!-- Para edición -->
+                    
+                    <!-- SECCIÓN FOTOS -->
+                    <div class="form-group">
+                        <label class="form-label">Foto del Producto *</label>
+                        <input type="file" id="np-file" accept="image/*" style="display:none;">
+                        <div id="np-preview-container" style="width:100%; height:150px; border:2px dashed #cbd5e1; border-radius:8px; display:flex; align-items:center; justify-content:center; background:#f8fafc; cursor:pointer; overflow:hidden;" onclick="document.getElementById('np-file').click()">
+                            <span id="np-preview-text" style="color:#64748b; font-size:0.9rem;">📷 Toca para subir foto</span>
+                            <img id="np-preview-img" src="" alt="Preview" style="max-width:100%; max-height:100%; object-fit:contain; display:none;">
+                        </div>
+                        <small style="color:#64748b; display:block; margin-top:5px;">Se comprimirá automáticamente.</small>
+                    </div>
+
+                    <!-- DATOS BÁSICOS -->
+                    <div class="form-group"><label class="form-label">Nombre *</label><input type="text" id="np-name" class="form-input" required placeholder="Ej: Gorra New Era"></div>
+                    <div class="form-group"><label class="form-label">Precio (RD$) *</label><input type="number" step="0.01" id="np-price" class="form-input" required placeholder="0.00"></div>
+                    <div class="form-group"><label class="form-label">Categoría *</label><input type="text" id="np-category" class="form-input" required list="cat-options" placeholder="Ej: Ropa"></div>
+                    <datalist id="cat-options-np"></datalist> <!-- Datalist específico para este modal si hace falta -->
+                    <div class="form-group"><label class="form-label">Stock Inicial</label><input type="number" id="np-stock" class="form-input" value="1" min="0"></div>
+                    <div class="form-group"><label class="form-label">Descripción Corta</label><textarea id="np-desc" class="form-input" rows="2" placeholder="Detalles breves..."></textarea></div>
+                    <div class="form-group"><label class="form-label">WhatsApp Proveedor (Opcional)</label><input type="tel" id="np-supplier" class="form-input" placeholder="+1809..."></div>
+                    
+                    <button type="submit" class="btn-primary" id="np-submit-btn">Guardar Producto</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal('modal-new-product')">Cancelar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+                // ==========================================
+        // CONFIGURACIÓN SUPABASE #2
+        // ==========================================
+        const SUPABASE_URL = 'https://zktwsgjvpborprfjkkjk.supabase.co';
+                const SUPABASE_ANON_KEY = 'sb_publishable_0z18tR6XR7cGhz5ZzYe1qg_jXzChlr8'; // ⚠️ VERIFICA ESTA KEY
+        
+        let supabaseClient;
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch(e) {
+            console.error("Error init Supabase:", e);
+        }
+
+        // ESTADO GLOBAL CON PERSISTENCIA LOCAL
+        const state = {
+            products: [],
+            currentCategory: null,
+            searchTerm: '',
+            isAdmin: false,
+            settings: {}
+        };
+
+        // UTILIDADES
+        function showToast(msg, type='info') {
+            const toast = document.getElementById('toast-notification');
+            if(!toast) return;
+            toast.textContent = msg;
+            toast.className = `toast show ${type}`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function generateOrderCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let result = 'ORD-';
+            for (let i = 0; i < 5; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+            return result;
+        }
+
+        function normalizePhoneRD(raw) {
+            let clean = String(raw).replace(/\D/g, '');
+            if (clean.length === 10) return '+1' + clean;
+            if (clean.startsWith('1') && clean.length === 11) return '+' + clean;
+            return null;
+        }
+
+        function closeModal(id) {
+            document.getElementById(id)?.classList.remove('show');
+        }
+
+        function openModal(id) {
+            document.getElementById(id)?.classList.add('show');
+        }
+
+        // ==========================================
+        // CARGA DE DATOS & RENDERIZADO
+        // ==========================================
+        async function loadAppSettings() {
+            try {
+                const { data, error } = await supabaseClient.from('app_settings').select('*');
+                if (!error && data) {
+                    data.forEach(item => state.settings[item.key] = item.value);
+                }
+            } catch (e) { console.warn("Settings load fail", e); }
+        }
+
+        async function fetchProducts() {
+            try {
+                const { data: prods, error: errP } = await supabaseClient
+                    .from('products')
+                    .select('*')
+                    .eq('is_active', true)
+                    .order('created_at', { ascending: false });
+
+                if (errP) throw errP;
+                state.products = prods || [];
+
+                                renderSidebarMenu();
+                renderProductGrid();
+                
+                // Procesar hash inicial si existe (para links directos)
+                if(window.location.hash) handleHashChange();
+            } catch (e) {
+                console.error("Fetch Error:", e);
+                document.getElementById('products-display-area').innerHTML = '<div class="empty-message"><span>❌</span><p>Error cargando datos.</p></div>';
+            }
+        }
+
+                async function renderSidebarMenu() {
+            const nav = document.getElementById('category-nav-list');
+            if (!nav) return;
+            
+            // 1. Determinar qué categoría está activa actualmente
+            const currentCat = state.currentCategory || "";
+            
+            // 2. Intentar leer de tabla categories si existe, sino fallback a products
+            let catsToRender = [];
+            
+            try {
+                const { data: catData, error: catErr } = await supabaseClient.from('categories').select('*').order('sort_order');
+                
+                if (!catErr && catData && catData.length > 0) {
+                    catsToRender = catData.map(c => ({ name: c.name, icon: c.icon || '📦' }));
+                } else {
+                    // Fallback: Extraer únicas de productos actuales
+                    const uniqueCats = [...new Set(state.products.map(p => p.category).filter(Boolean))];
+                    catsToRender = uniqueCats.sort().map(name => ({ name, icon: '📦' }));
+                }
+            } catch (err) {
+                console.warn("Error cargando categorías:", err);
+                // Fallback seguro
+                const uniqueCats = [...new Set(state.products.map(p => p.category).filter(Boolean))];
+                catsToRender = uniqueCats.sort().map(name => ({ name, icon: '📦' }));
+            }
+
+            // 3. Construir HTML base con "Todos"
+            let html = `<a href="#" data-cat="" class="cat-item ${currentCat === "" ? 'active' : ''}" onclick="setCategory('', event)">
+                <i>🏠</i> Todos los productos
+            </a>`;
+
+            // 4. Generar enlaces de categorías dinámicas
+            catsToRender.forEach(c => {
+                const isActive = currentCat === c.name ? 'active' : '';
+                html += `<a href="#" data-cat="${escapeHtml(c.name)}" class="cat-item ${isActive}" onclick="setCategory('${escapeHtml(c.name)}', event)">
+                    <i>${c.icon}</i> ${escapeHtml(c.name)}
+                </a>`;
+            });
+
+            // 5. BOTÓN AGREGAR CATEGORÍA (Solo si es Admin)
+            if (state.isAdmin) {
+                html += `<button type="button" class="cat-item add-cat-btn" style="margin-top:10px; background:#f8fafc; border:2px dashed #cbd5e1; color:#64748b; font-weight:600; width:calc(100% - 40px); margin-left:20px; padding:10px; cursor:pointer; border-radius:8px; display:block;" onclick="handleAddCategoryClick()">
+                    ➕ Nueva Categoría
+                </button>`;
+            }
+
+            // 6. Inyectar todo de golpe
+            nav.innerHTML = html;
+
+            // 7. Actualizar datalist para autocompletado en editor de productos
+            const dl = document.getElementById('cat-options');
+            if(dl) {
+                dl.innerHTML = catsToRender.map(c => `<option value="${escapeHtml(c.name)}">`).join('');
+            }
+        }
+
+        function renderProductGrid() {
+            const container = document.getElementById('products-display-area');
+            const emptyMsg = document.getElementById('empty-state-msg');
+            
+            let filtered = state.products;
+
+            if (state.currentCategory) {
+                filtered = filtered.filter(p => p.category === state.currentCategory);
+            }
+
+            if (state.searchTerm) {
+                const term = state.searchTerm.toLowerCase();
+                filtered = filtered.filter(p => 
+                    p.name.toLowerCase().includes(term) || 
+                    (p.description && p.description.toLowerCase().includes(term))
+                );
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                emptyMsg.classList.remove('hidden');
+                return;
+            }
+
+            emptyMsg.classList.add('hidden');
+            container.innerHTML = filtered.map(p => createProductCard(p)).join('');
+        }
+
+        function createProductCard(p) {
+            const stockClass = p.stock <= 0 ? 'badge-out' : (p.stock < 5 ? 'badge-low' : 'badge-in');
+            const stockText = p.stock <= 0 ? 'AGOTADO' : `${p.stock} DISP.`;
+            const priceFormatted = parseFloat(p.price).toLocaleString('es-DO', { minimumFractionDigits: 2 });
+            const imgUrl = p.image_url || 'https://via.placeholder.com/400x400/e2e8f0/94a3b8?text=Sin+Foto';
+
+            return `
+                <div class="product-card" data-id="${p.id}">
+                                        <div class="admin-controls">
+                        <button class="ctrl-btn ctrl-edit" onclick="editProduct('${p.id}')" title="Editar Ficha">✏️</button>
+                        <button class="ctrl-btn ctrl-supplier" onclick="requestFromSupplier('${p.id}')" title="Pedir al Proveedor">🛒</button>
+                        <button class="ctrl-btn ctrl-del" onclick="deleteProduct('${p.id}')" title="Eliminar">🗑️</button>
+                    </div>
+                    <div class="card-image-wrap">
+                        <img src="${imgUrl}" alt="${escapeHtml(p.name)}" class="card-img" loading="lazy">
+                        <span class="badge-stock ${stockClass}">${stockText}</span>
+                    </div>
+                    <div class="card-info">
+                        <div class="card-category">${escapeHtml(p.category || 'General')}</div>
+                        <div class="card-title">${escapeHtml(p.name)}</div>
+                        <div class="card-price">RD$ <span>${priceFormatted}</span></div>
+                        <button class="btn-request" ${p.stock <= 0 ? 'disabled' : ''} onclick="startRequest('${p.id}')">
+                            ${p.stock <= 0 ? 'No Disponible' : '📲 SOLICITAR'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // INTERACCIÓN USUARIO (ANTI-SPAM & WHATSAPP)
+        // ==========================================
+        function startRequest(productId) {
+            const prod = state.products.find(p => p.id === productId);
+            if (!prod) return;
+            
+            document.getElementById('req-product-id').value = prod.id;
+            document.getElementById('req-prod-name').textContent = prod.name;
+            document.getElementById('req-prod-price').textContent = parseFloat(prod.price).toFixed(2);
+            document.getElementById('form-request').reset();
+            document.getElementById('honeypot-field').value = ''; 
+            
+            openModal('modal-request-order');
+        }
+
+        document.getElementById('form-request').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (document.getElementById('honeypot-field').value !== '') {
+                showToast("Detectado bot.", "error");
+                return;
+            }
+
+            const name = document.getElementById('req-name').value.trim();
+            const phoneRaw = document.getElementById('req-phone').value.trim();
+            const address = document.getElementById('req-address').value.trim();
+            const productId = document.getElementById('req-product-id').value;
+
+            const phoneNorm = normalizePhoneRD(phoneRaw);
+            if (!phoneNorm) {
+                showToast("Teléfono inválido.", "error");
+                return;
+            }
+
+            const prod = state.products.find(p => p.id === productId);
+            if(!prod) return;
+
+            const orderCode = generateOrderCode();
+            
+            // Guardar Backup Silencioso
+            try {
+                await supabaseClient.from('web_orders').insert([{
+                    order_code: orderCode,
+                    product_id: prod.id,
+                    product_name_snapshot: prod.name,
+                    product_price_snapshot: prod.price,
+                    customer_name: name,
+                    customer_phone: phoneNorm,
+                    address_note: address,
+                    status: 'nuevo'
+                }]);
+            } catch(err) {
+                console.warn("Backup falló", err);
+            }
+
+                        const waNumber = state.settings.whatsapp_number || '+18495238873';
+            
+            // Generar link directo al producto para que tú lo veas como Admin
+            const productUrl = `${window.location.origin}${window.location.pathname}#product-${prod.id}`;
+            
+            const message = `*NUEVO PEDIDO WEB*\n\n🆔 Código: ${orderCode}\n👤 Cliente: ${name}\n📞 Tel: ${phoneNorm}\n📦 Producto: ${prod.name}\n💰 Precio: RD$ ${parseFloat(prod.price).toFixed(2)}\n${address ? `📍 Dir: ${address}\n` : ''}\n🔗 Ver Artículo: ${productUrl}\n_Enviado desde tienda online._`;
+
+            const waLink = `https://wa.me/${waNumber.replace('+','')}?text=${encodeURIComponent(message)}`;
+            
+            closeModal('modal-request-order');
+            window.open(waLink, '_blank');
+            showToast("Pedido enviado!", "success");
+        });
+
+        // ==========================================
+        // PANEL ADMIN & GESTIÓN (CORREGIDO)
+        // ==========================================
+        
+        // Verificar sesión al cargar (usando localStorage como respaldo simple)
+        function checkAdminSession() {
+            const savedAdmin = localStorage.getItem('pcd_admin_session');
+            if (savedAdmin === 'true') {
+                state.isAdmin = true;
+                document.body.classList.add('is-admin');
+            } else {
+                state.isAdmin = false;
+                document.body.classList.remove('is-admin');
+            }
+        }
+
+        let clickCount = 0;
+        const adminIcon = document.getElementById('admin-trigger-icon');
+        
+        if(adminIcon) {
+            adminIcon.addEventListener('click', () => {
+                clickCount++;
+                if (clickCount >= 3) {
+                    clickCount = 0;
+                    if (!state.isAdmin) {
+                        openModal('modal-admin-login');
+                    } else {
+                        logoutAdmin();
+                    }
+                }
+            });
+        }
+
+        // Listener para el formulario de Login
+        const loginForm = document.getElementById('form-admin-login');
+        if(loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const pass = document.getElementById('adm-pass').value;
+                
+                                try {
+                    // Intento de autenticación segura vía Supabase
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email: document.getElementById('adm-email').value, // Lee el hidden input
+                        password: pass
+                    });
+
+                    if (error) throw error;
+
+                    // Éxito
+                    state.isAdmin = true;
+                    localStorage.setItem('pcd_admin_session', 'true');
+                    document.body.classList.add('is-admin');
+                    closeModal('modal-admin-login');
+                    showToast("Modo Admin Activado ✅", "success");
+                    await fetchProducts(); 
+                    
+                } catch (err) {
+                    console.error("Login Error:", err);
+                    showToast("Credenciales inválidas", "error");
+                }
+            });
+        }
+
+        // Función única para cerrar sesión
+        function logoutAdmin() {
+            state.isAdmin = false;
+            localStorage.removeItem('pcd_admin_session'); // Limpiar persistencia
+            document.body.classList.remove('is-admin');
+            showToast("Sesión cerrada", "info");
+            fetchProducts(); // Refrescar para ocultar botones
+        }
+
+        function editProduct(id) {
+            const prod = state.products.find(p => p.id === id);
+            if (!prod) return;
+            
+            document.getElementById('editor-title').textContent = "Editar Producto";
+            document.getElementById('ed-id').value = prod.id;
+            document.getElementById('ed-name').value = prod.name;
+            document.getElementById('ed-price').value = prod.price;
+            document.getElementById('ed-category').value = prod.category || '';
+            document.getElementById('ed-stock').value = prod.stock;
+            document.getElementById('ed-image').value = prod.image_url || '';
+            document.getElementById('ed-supplier').value = prod.supplier_whatsapp || '';
+            document.getElementById('ed-active').checked = prod.is_active;
+            
+            openModal('modal-product-editor');
+        }
+
+        function deleteProduct(id) {
+            const prod = state.products.find(p => p.id === id);
+            if (!confirm(`¿Eliminar "${prod?.name}"?`)) return;
+
+            supabaseClient.from('products').delete().eq('id', id).then(({error}) => {
+                if(error) showToast("Error eliminando", "error");
+                else {
+                    showToast("Eliminado 🗑️", "info");
+                    fetchProducts();
+                }
+            });
+        }
+
+                function requestFromSupplier(id) {
+            if (!state.isAdmin) {
+                showToast("Acceso restringido", "error");
+                return;
+            }
+
+            const prod = state.products.find(p => p.id === id);
+            if (!prod) return;
+
+            if (!prod.supplier_whatsapp) {
+                showToast("⚠️ No hay número de proveedor registrado.", "warning");
+                editProduct(id); // Abre editor para que pongas el número
+                return;
+            }
+
+            // Link público para que el proveedor vea la foto sin login
+            const productUrl = `${window.location.origin}${window.location.pathname}#product-${prod.id}`;
+            
+            const supplierMessage = `*SOLICITUD DE REPOSICIÓN / INFO*\n\n` +
+                                    `Hola, necesito confirmar disponibilidad del siguiente artículo:\n\n` +
+                                    `📦 *Producto:* ${prod.name}\n` +
+                                    `💰 *Precio Venta:* RD$ ${parseFloat(prod.price).toFixed(2)}\n` +
+                                    `🔗 *Ver Foto/Detalle:* ${productUrl}\n\n` +
+                                    `_Gracias por su apoyo._`;
+
+            const cleanPhone = prod.supplier_whatsapp.replace(/\D/g, '');
+            const waLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(supplierMessage)}`;
+            
+            window.open(waLink, '_blank');
+            showToast("Mensaje preparado para proveedor 📲", "success");
+        }
+
+        // Form Editor Submit
+        document.getElementById('form-product-editor').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('ed-id').value;
+            const updates = {
+                name: document.getElementById('ed-name').value.trim(),
+                price: parseFloat(document.getElementById('ed-price').value),
+                category: document.getElementById('ed-category').value.trim() || null,
+                stock: parseInt(document.getElementById('ed-stock').value),
+                image_url: document.getElementById('ed-image').value.trim() || null,
+                supplier_whatsapp: document.getElementById('ed-supplier').value.trim() || null,
+                is_active: document.getElementById('ed-active').checked
+            };
+
+            const { error } = await supabaseClient.from('products').update(updates).eq('id', id);
+            if (error) showToast("Error: " + error.message, "error");
+            else {
+                showToast("Actualizado ✅", "success");
+                closeModal('modal-product-editor');
+                fetchProducts();
+            }
+        });
+
+        // ==========================================
+        // GESTIÓN DE CATEGORÍAS (SIMULADA SIN TABLA EXTERNA)
+        // ==========================================
+                        // Variable global para trackear si el modal ya fue inicializado
+        let categoryModalInitialized = false;
+
+        function handleAddCategoryClick() {
+            if (!state.isAdmin) {
+                showToast("Acceso denegado", "error");
+                return;
+            }
+
+            // Si el modal no existe, crearlo
+            let modal = document.getElementById('modal-add-category');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'modal-add-category';
+                modal.className = 'modal-overlay hidden';
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width:350px;">
+                        <div class="modal-header">
+                            <h3>➕ Nueva Categoría</h3>
+                            <button onclick="closeModal('modal-add-category')" class="close-modal">✕</button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="form-new-cat">
+                                <div class="form-group">
+                                    <label class="form-label">Nombre *</label>
+                                    <input type="text" id="nc-name" class="form-input" required placeholder="Ej: Electrónica">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Emoji (Opcional)</label>
+                                    <input type="text" id="nc-icon" class="form-input" maxlength="2" placeholder="📱">
+                                </div>
+                                <button type="submit" class="btn-primary">Crear Categoría</button>
+                            </form>
+                        </div>
+                    </div>`;
+                document.body.appendChild(modal);
+            }
+
+            // Inicializar listener SOLO UNA VEZ
+            if (!categoryModalInitialized) {
+                const form = document.getElementById('form-new-cat');
+                if (form) {
+                    form.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        
+                        const nameInput = document.getElementById('nc-name');
+                        const iconInput = document.getElementById('nc-icon');
+                        
+                        const name = nameInput.value.trim();
+                        const icon = iconInput.value.trim() || '📦';
+                        
+                        if (!name) {
+                            showToast("El nombre es obligatorio", "error");
+                            return;
+                        }
+
+                        // Mostrar feedback visual inmediato
+                        const submitBtn = form.querySelector('.btn-primary');
+                        const originalText = submitBtn.textContent;
+                        submitBtn.textContent = "Guardando...";
+                        submitBtn.disabled = true;
+
+                        try {
+                            const { error } = await supabaseClient.from('categories').insert([{ name, icon }]);
+                            
+                            if (error) {
+                                if (error.code === '23505') {
+                                    showToast("Esta categoría ya existe", "warning");
+                                } else {
+                                    console.error("Supabase Error:", error);
+                                    showToast("Error al guardar: " + error.message, "error");
+                                }
+                            } else {
+                                showToast("Categoría creada ✅", "success");
+                                closeModal('modal-add-category');
+                                nameInput.value = '';
+                                iconInput.value = '';
+                                await fetchProducts(); // Recargar menú lateral
+                            }
+                        } catch (err) {
+                            console.error("Exception:", err);
+                            showToast("Error inesperado", "error");
+                        } finally {
+                            submitBtn.textContent = originalText;
+                            submitBtn.disabled = false;
+                        }
+                    });
+                    
+                    categoryModalInitialized = true;
+                }
+            }
+
+            // Abrir modal con animación suave
+            requestAnimationFrame(() => {
+                modal.classList.remove('hidden');
+                setTimeout(() => modal.classList.add('show'), 10);
+            });
+        }
+
+        // ==========================================
+        // EVENT LISTENERS UI
+        // ==========================================
+        function setupEventListeners() {
+            const drawerBtn = document.getElementById('open-drawer-btn');
+            const closeBtn = document.getElementById('close-drawer-btn');
+            const overlay = document.getElementById('menu-overlay');
+            
+            if(drawerBtn) drawerBtn.onclick = () => toggleDrawer(true);
+            if(closeBtn) closeBtn.onclick = () => toggleDrawer(false);
+            if(overlay) overlay.onclick = () => toggleDrawer(false);
+
+            const searchInput = document.getElementById('global-search-input');
+            const searchBtn = document.getElementById('search-submit-btn');
+            
+            if(searchInput) searchInput.oninput = (e) => {
+                state.searchTerm = e.target.value;
+                renderProductGrid();
+            };
+            if(searchBtn) searchBtn.onclick = () => {
+                 state.searchTerm = searchInput.value;
+                 renderProductGrid();
+            };
+
+            const themeBtn = document.getElementById('theme-toggle-btn');
+            if(themeBtn) themeBtn.onclick = () => {
+                document.body.classList.toggle('dark-mode');
+                const isDark = document.body.classList.contains('dark-mode');
+                localStorage.setItem('pcd_theme', isDark ? 'dark' : 'light');
+                themeBtn.textContent = isDark ? '☀️' : '🌙';
+            };
+        }
+
+        function toggleDrawer(open) {
+            const drawer = document.getElementById('side-menu');
+            const overlay = document.getElementById('menu-overlay');
+            if (drawer && overlay) {
+                if (open) {
+                    drawer.classList.add('open');
+                    overlay.classList.add('show');
+                } else {
+                    drawer.classList.remove('open');
+                    overlay.classList.remove('show');
+                }
+            }
+        }
+
+        function setCategory(cat, event) {
+            if(event) event.preventDefault(); 
+            
+            state.currentCategory = cat;
+            renderProductGrid();
+            renderSidebarMenu(); 
+            toggleDrawer(false);
+        }
+
+                // Manejo de Deep Links (#product-uuid)
+        window.addEventListener('hashchange', handleHashChange);
+        
+        function handleHashChange() {
+            const hash = window.location.hash;
+            if (hash.startsWith('#product-')) {
+                const productId = hash.replace('#product-', '');
+                setTimeout(() => {
+                    const card = document.querySelector(`.product-card[data-id="${productId}"]`);
+                    if(card) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        card.style.boxShadow = '0 0 0 3px var(--primary-orange)';
+                        setTimeout(() => card.style.boxShadow = '', 2000);
+                    }
+                }, 500);
+            }
+        }
+                            // ==========================================
+        // SISTEMA DE SUBIDA DE FOTOS & NUEVO PRODUCTO
+        // ==========================================
+        
+        let currentImageFile = null; // Guarda el archivo temporalmente
+
+        function openNewProductModal() {
+            if (!state.isAdmin) return showToast("Acceso denegado", "error");
+            
+            // Resetear formulario
+            document.getElementById('form-new-product').reset();
+            document.getElementById('np-id').value = '';
+            document.getElementById('np-preview-img').style.display = 'none';
+            document.getElementById('np-preview-text').style.display = 'block';
+            document.getElementById('new-prod-title').textContent = "➕ Agregar Producto";
+            document.getElementById('np-submit-btn').textContent = "Guardar Producto";
+            currentImageFile = null;
+
+            // Cargar categorías disponibles para autocompletar
+            const dl = document.getElementById('cat-options');
+            if(dl && state.products.length > 0) {
+                 const uniqueCats = [...new Set(state.products.map(p => p.category).filter(Boolean))].sort();
+                 dl.innerHTML = uniqueCats.map(c => `<option value="${escapeHtml(c)}">`).join('');
+            }
+
+            openModal('modal-new-product');
+        }
+
+        // Manejar selección de archivo
+        document.getElementById('np-file').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Validar tipo
+            if (!file.type.startsWith('image/')) {
+                showToast("Solo se permiten imágenes", "error");
+                return;
+            }
+
+            // Mostrar preview inmediato
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = document.getElementById('np-preview-img');
+                img.src = event.target.result;
+                img.style.display = 'block';
+                document.getElementById('np-preview-text').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+
+            // Guardar referencia al archivo real
+            currentImageFile = file;
+        });
+
+        // Función auxiliar para comprimir imagen usando Canvas
+        function compressImage(file, maxWidth = 800, quality = 0.7) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                img.onload = () => {
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+                };
+                img.onerror = reject;
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        // Submit Formulario Nuevo/Editar Producto
+        document.getElementById('form-new-product').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('np-submit-btn');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Subiendo...";
+
+            try {
+                const name = document.getElementById('np-name').value.trim();
+                const price = parseFloat(document.getElementById('np-price').value);
+                const category = document.getElementById('np-category').value.trim();
+                const stock = parseInt(document.getElementById('np-stock').value) || 0;
+                const desc = document.getElementById('np-desc').value.trim();
+                const supplier = document.getElementById('np-supplier').value.trim();
+                const existingId = document.getElementById('np-id').value;
+
+                let imageUrl = '';
+
+                // 1. Si hay foto nueva, subirla y comprimirla
+                if (currentImageFile) {
+                    showToast("Optimizando imagen...", "info");
+                    const compressedBlob = await compressImage(currentImageFile);
+                    const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.jpg`;
+                    
+                    const { data, error } = await supabaseClient.storage
+                        .from('productos')
+                        .upload(fileName, compressedBlob, { cacheControl: '3600', upsert: false });
+                    
+                    if (error) throw new Error("Error subiendo foto: " + error.message);
+                    
+                    const { data: urlData } = supabaseClient.storage.from('productos').getPublicUrl(fileName);
+                    imageUrl = urlData.publicUrl;
+                } else if (existingId) {
+                    // Si es edición y NO se cambió la foto, mantener la anterior
+                    const oldProd = state.products.find(p => p.id === existingId);
+                    imageUrl = oldProd ? oldProd.image_url : '';
+                }
+
+                // 2. Preparar datos para BD
+                const productData = {
+                    name,
+                    price,
+                    category,
+                    stock,
+                    description: desc,
+                    supplier_whatsapp: supplier,
+                    image_url: imageUrl,
+                    is_active: true
+                };
+
+                // 3. Insertar o Actualizar
+                let result;
+                if (existingId) {
+                    result = await supabaseClient.from('products').update(productData).eq('id', existingId);
+                } else {
+                    result = await supabaseClient.from('products').insert([productData]);
+                }
+
+                if (result.error) throw result.error;
+
+                showToast(existingId ? "Producto actualizado ✅" : "Producto creado ✅", "success");
+                closeModal('modal-new-product');
+                await fetchProducts(); // Recargar catálogo
+
+            } catch (err) {
+                console.error(err);
+                showToast("Error: " + err.message, "error");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+
+        // Modificar editProduct existente para usar el nuevo modal
+        const originalEditProduct = window.editProduct;
+        window.editProduct = function(id) {
+            const prod = state.products.find(p => p.id === id);
+            if (!prod) return;
+
+            // Llenar campos del modal nuevo
+            document.getElementById('np-id').value = prod.id;
+            document.getElementById('np-name').value = prod.name;
+            document.getElementById('np-price').value = prod.price;
+            document.getElementById('np-category').value = prod.category || '';
+            document.getElementById('np-stock').value = prod.stock;
+            document.getElementById('np-desc').value = prod.description || '';
+            document.getElementById('np-supplier').value = prod.supplier_whatsapp || '';
+            
+            // Preview de imagen existente
+            const imgPrev = document.getElementById('np-preview-img');
+            const txtPrev = document.getElementById('np-preview-text');
+            if (prod.image_url) {
+                imgPrev.src = prod.image_url;
+                imgPrev.style.display = 'block';
+                txtPrev.style.display = 'none';
+            } else {
+                imgPrev.style.display = 'none';
+                txtPrev.style.display = 'block';
+            }
+            
+            document.getElementById('new-prod-title').textContent = "✏️ Editar Producto";
+            document.getElementById('np-submit-btn').textContent = "Actualizar Cambios";
+            currentImageFile = null; // Resetear subida pendiente
+
+            openModal('modal-new-product');
+        };
+
+        // Mostrar botón "+" cuando entra admin
+        const observer = new MutationObserver(() => {
+            if (document.body.classList.contains('is-admin')) {
+                document.getElementById('add-product-btn')?.classList.remove('hidden');
+            } else {
+                document.getElementById('add-product-btn')?.classList.add('hidden');
+            }
+        });
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        document.addEventListener('DOMContentLoaded', async () => {
+            checkAdminSession(); // Restaura sesión admin si existía
+            
+            // Cargar tema guardado
+            if (localStorage.getItem('pcd_theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                const tb = document.getElementById('theme-toggle-btn');
+                if(tb) tb.textContent = '☀️';
+            }
+            
+            setupEventListeners();
+            await loadAppSettings();
+            await fetchProducts();
+            
+            // Procesar hash inicial si existe (para links directos)
+            setTimeout(() => {
+                if(window.location.hash) {
+                    handleHashChange();
+                }
+            }, 800);
+        });
+
+    </script>
+</body>
+</html>
