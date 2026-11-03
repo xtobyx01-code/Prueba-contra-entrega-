@@ -361,11 +361,25 @@
     <header class="main-header" id="sticky-header">
         <!-- FILA 1: Logo Izquierda / Admin Derecha -->
         <div class="header-row-top">
-            <div class="header-left">
+                        <div class="header-left">
                 <button id="open-drawer-btn">☰</button>
-                <a href="/" class="logo-link">
-                    <img src="assets/logo-horizontal.png" alt="Logo" class="site-logo" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex'">
-                    <span id="fallback-logo" class="logo-text-only" style="display:none; align-items:center;">PAGO CONTRA ENTREGA</span>
+                <a href="/" class="logo-link" aria-label="Ir al inicio">
+                    <!-- LOGO OFICIAL SVG INTEGRADO -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 80" width="160" height="30" role="img" aria-label="Pago Contra Entrega" style="vertical-align: middle;">
+                        <!-- ICONO CARRITO -->
+                        <g transform="translate(5,8)">
+                            <path d="M5 8 H15 L25 45 H65" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20 22 H67 L60 43 H26" fill="none" stroke="#FF9900" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M29 34 L45 25 L42 33 L67 33" fill="none" stroke="#FF9900" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="30" cy="54" r="5" fill="#FFFFFF"/>
+                            <circle cx="58" cy="54" r="5" fill="#FFFFFF"/>
+                        </g>
+                        <!-- TEXTO NOMBRE MARCA -->
+                        <text x="88" y="49" font-family="Inter, Arial, sans-serif" font-size="29" font-weight="800" letter-spacing="-1">
+                            <tspan fill="#FFFFFF">PAGO CONTRA</tspan>
+                            <tspan fill="#FF9900"> ENTREGA</tspan>
+                        </text>
+                    </svg>
                 </a>
             </div>
             
