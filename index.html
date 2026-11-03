@@ -647,25 +647,50 @@
             } catch (e) { console.warn("Settings load fail", e); }
         }
 
-        async function fetchProducts() {
+                async function fetchProducts() {
+            console.log("--- Iniciando carga de productos ---");
             try {
+                // 1. Verificar conexión básica
+                if (!supabaseClient) {
+                    throw new Error("Supabase Client no inicializado");
+                }
+
+                // 2. Obtener datos
                 const { data: prods, error: errP } = await supabaseClient
                     .from('products')
                     .select('*')
                     .eq('is_active', true)
                     .order('created_at', { ascending: false });
 
-                if (errP) throw errP;
+                if (errP) {
+                    console.error("Error específico Supabase:", errP.message);
+                    throw errP;
+                }
+                
+                console.log("Productos recibidos:", prods?.length || 0);
                 state.products = prods || [];
 
-                                renderSidebarMenu();
+                // 3. Renderizar UI
+                renderSidebarMenu();
                 renderProductGrid();
                 
-                // Procesar hash inicial si existe (para links directos)
-                if(window.location.hash) handleHashChange();
+                // 4. Hash handling seguro
+                if(window.location.hash && typeof handleHashChange === 'function') {
+                    setTimeout(handleHashChange, 500);
+                }
+
             } catch (e) {
-                console.error("Fetch Error:", e);
-                document.getElementById('products-display-area').innerHTML = '<div class="empty-message"><span>❌</span><p>Error cargando datos.</p></div>';
+                console.error("ERROR CRÍTICO FETCH:", e);
+                const area = document.getElementById('products-display-area');
+                if(area) {
+                    area.innerHTML = `
+                        <div class="empty-message">
+                            <span style="color:red;">⚠️</span>
+                            <p>No se pudieron cargar los productos.<br><small>${escapeHtml(e.message)}</small></p>
+                            <button onclick="location.reload()" class="btn-primary" style="margin-top:10px;">Reintentar</button>
+                        </div>
+                    `;
+                }
             }
         }
 
