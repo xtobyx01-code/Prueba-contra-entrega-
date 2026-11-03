@@ -17,29 +17,29 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-        <style>
+    <style>
         /* ==========================================
            VARIABLES GLOBALES & PALETA LOGO
            ========================================== */
         :root {
-            --brand-orange: #FF9900;       /* Color principal del logo */
-            --brand-dark-blue: #0D1B4A;    /* Fondo oscuro del logo/navy profundo */
+            --brand-orange: #FF9900;       
+            --brand-dark-blue: #0D1B4A;    
             --brand-white: #FFFFFF;
-            --bg-light-gray: #F5F7FA;      /* Fondo cuerpo claro */
+            --bg-light-gray: #F5F7FA;      
             --card-bg: #FFFFFF;
-            --text-main: #1E293B;          /* Texto oscuro legible */
-            --text-muted: #64748B;         /* Texto secundario gris */
+            --text-main: #1E293B;          
+            --text-muted: #64748B;         
             --border-color: #E2E8F0;
             
             /* Estados Stock */
-            --stock-ok: #10B981;           /* Verde */
-            --stock-low: #F59E0B;          /* Amarillo/Naranja suave */
-            --stock-out: #EF4444;          /* Rojo */
+            --stock-ok: #10B981;           
+            --stock-low: #F59E0B;          
+            --stock-out: #EF4444;          
             
             /* Sombras */
             --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
             --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-            --shadow-fab: 0 4px 12px rgba(255, 153, 0, 0.4); /* Sombra naranja brillante */
+            --shadow-fab: 0 4px 12px rgba(255, 153, 0, 0.4); 
             
             --radius-lg: 12px;
             --font-family: 'Inter', sans-serif;
@@ -51,7 +51,7 @@
             --text-main: #E2E8F0;
             --text-muted: #94A3B8;
             --border-color: #1E293B;
-            --brand-dark-blue: #0B1220; /* Header sigue siendo oscuro en modo noche */
+            --brand-dark-blue: #0B1220; 
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -60,15 +60,16 @@
         button { cursor: pointer; border: none; outline: none; font-family: inherit; }
         input, select, textarea { font-family: inherit; }
 
-                /* ==========================================
+        /* ==========================================
            HEADER DOBLE FILA ESTILO AMAZON
            ========================================== */
         .main-header {
-            position: relative; /* Cambiado de sticky a relative para control manual */
+            position: fixed; top: 0; left: 0; right: 0;
             background: var(--brand-dark-blue);
             width: 100%;
             z-index: 100;
             transition: transform 0.3s ease-in-out;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         /* Ocultar header al scrollear hacia abajo */
@@ -82,7 +83,7 @@
             align-items: center; 
             justify-content: space-between; 
             padding: 8px 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            height: 50px; /* Altura fija fila superior */
         }
 
         .header-left { display: flex; align-items: center; gap: 10px; }
@@ -92,22 +93,22 @@
         }
         #open-drawer-btn:hover { background: rgba(255,255,255,0.1); }
         
-        /* Logo Ajustado Vertical/Cuadrado si es posible, o texto corto */
+        /* Logo Ajustado */
         .logo-link img.site-logo { 
-            height: 28px; /* Tamaño compacto tipo Amazon */
+            height: 28px; 
             width: auto; 
             object-fit: contain; 
-            filter: brightness(0) invert(1); /* Blanco puro sobre navy */
+            filter: brightness(0) invert(1); 
         }
-                .logo-text-only {
+        .logo-text-only {
             color: var(--brand-white);
             font-weight: 800;
-            font-size: 0.9rem; /* Reducido para caber mejor */
+            font-size: 0.9rem; 
             letter-spacing: -0.5px;
-            white-space: nowrap; /* Evita saltos de línea raros */
+            white-space: nowrap; 
             overflow: hidden;
-            text-overflow: ellipsis; /* Pone "..." si sobra */
-            max-width: 140px; /* Límite estricto ancho */
+            text-overflow: ellipsis; 
+            max-width: 140px; 
         }
 
         .header-right.actions { display: flex; align-items: center; gap: 15px; color: var(--brand-white); }
@@ -117,15 +118,15 @@
 
         /* --- FILA INFERIOR: Buscador Grande --- */
         .header-row-search {
-            padding: 8px 15px 12px 15px; /* Más espacio abajo */
+            padding: 0 15px 10px 15px; 
             background: var(--brand-dark-blue);
         }
 
         .search-container {
             display: flex; align-items: center;
-            background: var(--brand-white); /* Fondo BLANCO puro como Amazon */
+            background: var(--brand-white); 
             border-radius: 8px; overflow: hidden;
-            height: 42px; /* Altura generosa táctil */
+            height: 40px; 
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         #global-search-input {
@@ -141,54 +142,11 @@
         }
         #search-submit-btn:hover { background: #E88B00; }
 
-        .header-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-        #open-drawer-btn { background: transparent; color: var(--brand-white); font-size: 1.5rem; padding: 5px; border-radius: 8px; transition: background 0.2s; }
-        #open-drawer-btn:hover { background: rgba(255,255,255,0.1); }
-        
-        /* Logo Ajustado: Solo ícono o texto corto si es necesario */
-        .logo-link img.site-logo { 
-            height: 32px; 
-            width: auto; 
-            object-fit: contain; 
-            filter: brightness(0) invert(1); /* Fuerza blanco sobre fondo navy */
-        }
-        /* Si quieres usar solo el texto "PAGO CONTRA ENTREGA" como fallback visual */
-        .logo-text-only {
-            color: var(--brand-white);
-            font-weight: 800;
-            font-size: 1.1rem;
-            letter-spacing: -0.5px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 150px; /* Evita que tape otros elementos */
-        }
-
-        .search-container {
-            flex-grow: 1; 
-            display: flex; align-items: center;
-            background: rgba(255,255,255,0.1); /* Fondo semitransparente en header */
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px; overflow: hidden;
-            height: 36px; margin: 0 10px;
-        }
-        #global-search-input {
-            flex-grow: 1; border: none; padding: 0 10px; font-size: 0.9rem; color: var(--brand-white); outline: none; background: transparent;
-        }
-        #global-search-input::placeholder { color: rgba(255,255,255,0.6); }
-        #search-submit-btn {
-            background: var(--brand-orange); color: white; width: 40px; height: 100%;
-            display: flex; align-items: center; justify-content: center; font-size: 1rem;
-        }
-
-        .header-right.actions { display: flex; align-items: center; gap: 15px; color: var(--brand-white); }
-        #admin-trigger-icon, #theme-toggle-btn {
-            background: transparent; color: var(--brand-white); font-size: 1.2rem; opacity: 0.8; transition: opacity 0.2s;
-        }
-        #admin-trigger-icon:hover, #theme-toggle-btn:hover { opacity: 1; }
+        /* Espaciado para compensar el header fijo */
+        .content-wrapper { padding-top: 100px; } 
 
         /* ==========================================
-           BOTÓN FLOTANTE (+ NUEVO) - MEJOR UX MÓVIL
+           BOTÓN FLOTANTE (+ NUEVO)
            ========================================== */
         .fab-button {
             position: fixed; bottom: 25px; right: 25px;
@@ -196,7 +154,7 @@
             background: var(--brand-orange);
             color: white;
             border-radius: 50%;
-            display: none; /* Oculto por defecto */
+            display: none; 
             align-items: center; justify-content: center;
             font-size: 1.5rem; font-weight: bold;
             box-shadow: var(--shadow-fab);
@@ -206,11 +164,10 @@
         .fab-button:hover { transform: scale(1.05); box-shadow: 0 6px 16px rgba(255, 153, 0, 0.6); }
         .fab-button:active { transform: scale(0.95); }
         
-        /* Mostrar solo si es Admin */
         body.is-admin .fab-button { display: flex; }
 
         /* ==========================================
-           MENÚ LATERAL (DRAWER) ESTILO AMAZON/RD
+           MENÚ LATERAL (DRAWER)
            ========================================== */
         .overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200;
@@ -254,11 +211,9 @@
         /* ==========================================
            GRID PRODUCTOS & CARDS LIMPIAS
            ========================================== */
-        .content-wrapper { padding: 20px 15px; max-width: 1200px; margin: 0 auto; padding-bottom: 80px; /* Espacio para FAB */ }
-        
         .products-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 15px; margin-top: 10px;
+            gap: 15px; margin-top: 10px; padding: 0 15px 80px 15px; /* Padding inferior para FAB */
         }
         @media (min-width: 768px) { .products-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; } }
 
@@ -287,7 +242,7 @@
         .card-info { padding: 12px; flex: 1; display: flex; flex-direction: column; }
         .card-category { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
         .card-title { font-size: 0.9rem; font-weight: 600; line-height: 1.3; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--text-main); }
-        .card-price { font-size: 1.1rem; font-weight: 800; color: var(--brand-orange); margin-bottom: 10px; } /* Precio destacado naranja */
+        .card-price { font-size: 1.1rem; font-weight: 800; color: var(--brand-orange); margin-bottom: 10px; } 
         .card-price span { font-size: 0.8rem; font-weight: 600; vertical-align: super; }
 
         .btn-request {
@@ -299,7 +254,7 @@
         .btn-request:active { box-shadow: 0 1px 0 #b8860b; transform: translateY(1px); }
         .btn-request:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); }
 
-        /* Botones Admin Overlay (Edición rápida) */
+        /* Botones Admin Overlay */
         .admin-controls {
             position: absolute; top: 5px; left: 5px; display: none; gap: 5px; z-index: 10;
         }
@@ -323,7 +278,7 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* ==========================================
-           MODALES GENÉRICOS (LIMPIOS)
+           MODALES GENÉRICOS
            ========================================== */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000;
@@ -402,7 +357,7 @@
         </footer>
     </aside>
 
-            <!-- HEADER ESTILO AMAZON (DOS FILAS) -->
+    <!-- HEADER ESTILO AMAZON (DOS FILAS) -->
     <header class="main-header" id="sticky-header">
         <!-- FILA 1: Logo Izquierda / Admin Derecha -->
         <div class="header-row-top">
@@ -498,9 +453,9 @@
                 <form id="form-admin-login">
                     <div class="form-group">
                         <label class="form-label">Correo Electrónico</label>
-                        <input type="hidden" id="adm-email" value="xtobyx001@gmail.com"> <!-- Valor oculto pero presente para JS -->
-<label class="form-label">Usuario Admin</label>
-<input type="text" class="form-input" value="ADMIN" disabled style="background:#f1f5f9; color:#64748b;">
+                        <input type="hidden" id="adm-email" value="xtobyx001@gmail.com"> 
+                        <label class="form-label">Usuario Admin</label>
+                        <input type="text" class="form-input" value="ADMIN" disabled style="background:#f1f5f9; color:#64748b;">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Contraseña</label>
@@ -537,7 +492,7 @@
         </div>
     </div>
 
-        <!-- MODAL NUEVO PRODUCTO / EDITAR CON FOTO -->
+    <!-- MODAL NUEVO PRODUCTO / EDITAR CON FOTO -->
     <div id="modal-new-product" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -546,7 +501,7 @@
             </div>
             <div class="modal-body">
                 <form id="form-new-product">
-                    <input type="hidden" id="np-id"> <!-- Para edición -->
+                    <input type="hidden" id="np-id"> 
                     
                     <!-- SECCIÓN FOTOS -->
                     <div class="form-group">
@@ -563,7 +518,6 @@
                     <div class="form-group"><label class="form-label">Nombre *</label><input type="text" id="np-name" class="form-input" required placeholder="Ej: Gorra New Era"></div>
                     <div class="form-group"><label class="form-label">Precio (RD$) *</label><input type="number" step="0.01" id="np-price" class="form-input" required placeholder="0.00"></div>
                     <div class="form-group"><label class="form-label">Categoría *</label><input type="text" id="np-category" class="form-input" required list="cat-options" placeholder="Ej: Ropa"></div>
-                    <datalist id="cat-options-np"></datalist> <!-- Datalist específico para este modal si hace falta -->
                     <div class="form-group"><label class="form-label">Stock Inicial</label><input type="number" id="np-stock" class="form-input" value="1" min="0"></div>
                     <div class="form-group"><label class="form-label">Descripción Corta</label><textarea id="np-desc" class="form-input" rows="2" placeholder="Detalles breves..."></textarea></div>
                     <div class="form-group"><label class="form-label">WhatsApp Proveedor (Opcional)</label><input type="tel" id="np-supplier" class="form-input" placeholder="+1809..."></div>
@@ -575,12 +529,15 @@
         </div>
     </div>
 
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast-notification" class="toast"></div>
+
     <script>
-                // ==========================================
+        // ==========================================
         // CONFIGURACIÓN SUPABASE #2
         // ==========================================
         const SUPABASE_URL = 'https://zktwsgjvpborprfjkkjk.supabase.co';
-                const SUPABASE_ANON_KEY = 'sb_publishable_0z18tR6XR7cGhz5ZzYe1qg_jXzChlr8'; // ⚠️ VERIFICA ESTA KEY
+        const SUPABASE_ANON_KEY = 'sb_publishable_0z18tR6XR7cGhz5ZzYe1qg_jXzChlr8'; 
         
         let supabaseClient;
         try {
@@ -589,7 +546,7 @@
             console.error("Error init Supabase:", e);
         }
 
-        // ESTADO GLOBAL CON PERSISTENCIA LOCAL
+        // ESTADO GLOBAL
         const state = {
             products: [],
             currentCategory: null,
@@ -651,101 +608,38 @@
             } catch (e) { console.warn("Settings load fail", e); }
         }
 
-                        async function fetchProducts() {
+        async function fetchProducts() {
             const area = document.getElementById('products-display-area');
-            if(area) area.innerHTML = '<div class="loading-state"><div class="spinner"></div>Intentando conectar...</div>';
+            if(area) area.innerHTML = '<div class="loading-state"><div class="spinner"></div>Conectando...</div>';
             
-            console.log("--- Iniciando carga de productos ---");
             try {
-                // 1. Verificar conexión básica
-                if (!supabaseClient) {
-                    throw new Error("Supabase Client no inicializado");
-                }
+                if (!supabaseClient) throw new Error("Supabase no inicializado");
                 
-                if(area) area.innerHTML = '<div class="loading-state"><div class="spinner"></div>Consultando base de datos...</div>';
-
-                // 2. Obtener datos CON TIMEOUT DE SEGURIDAD (5 segundos)
-                const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error("Tiempo de espera agotado")), 5000)
-                );
-
-                const queryPromise = supabaseClient
-                    .from('products')
-                    .select('*')
-                    .eq('is_active', true)
-                    .order('created_at', { ascending: false });
-
-                const result = await Promise.race([queryPromise, timeoutPromise]);
-                const { data: prods, error: errP } = result;
-
-                if (errP) {
-                    console.error("Error específico Supabase:", errP.message);
-                    throw errP;
-                }
-                
-                console.log("Productos recibidos:", prods?.length || 0);
-                state.products = prods || [];
-
-                if(area && state.products.length === 0) {
-                     area.innerHTML = '<div class="empty-message"><span>📦</span><p>No hay productos activos.</p></div>';
-                     return;
-                }
-
-                // 3. Renderizar UI
-                renderSidebarMenu();
-                renderProductGrid();
-                
-                // 4. Hash handling seguro
-                if(window.location.hash && typeof handleHashChange === 'function') {
-                    setTimeout(handleHashChange, 500);
-                }
-
-            } catch (e) {
-                console.error("ERROR CRÍTICO FETCH:", e);
-                if(area) {
-                    area.innerHTML = `
-                        <div class="empty-message">
-                            <span style="color:red;">⚠️</span>
-                            <p>Fallo de conexión:<br><small>${escapeHtml(e.message)}</small></p>
-                            <button onclick="location.reload()" class="btn-primary" style="margin-top:10px;">Reintentar</button>
-                        </div>
-                    `;
-                }
-            }
-        }
-
-                // 2. Obtener datos
                 const { data: prods, error: errP } = await supabaseClient
                     .from('products')
                     .select('*')
                     .eq('is_active', true)
                     .order('created_at', { ascending: false });
 
-                if (errP) {
-                    console.error("Error específico Supabase:", errP.message);
-                    throw errP;
-                }
+                if (errP) throw errP;
                 
-                console.log("Productos recibidos:", prods?.length || 0);
                 state.products = prods || [];
 
-                // 3. Renderizar UI
+                if(state.products.length === 0) {
+                     if(area) area.innerHTML = '<div class="empty-message"><span>📦</span><p>No hay productos activos.</p></div>';
+                     return;
+                }
+
                 renderSidebarMenu();
                 renderProductGrid();
                 
-                // 4. Hash handling seguro
-                if(window.location.hash && typeof handleHashChange === 'function') {
-                    setTimeout(handleHashChange, 500);
-                }
-
             } catch (e) {
-                console.error("ERROR CRÍTICO FETCH:", e);
-                const area = document.getElementById('products-display-area');
+                console.error("ERROR FETCH:", e);
                 if(area) {
                     area.innerHTML = `
                         <div class="empty-message">
                             <span style="color:red;">⚠️</span>
-                            <p>No se pudieron cargar los productos.<br><small>${escapeHtml(e.message)}</small></p>
+                            <p>Error de conexión:<br><small>${escapeHtml(e.message)}</small></p>
                             <button onclick="location.reload()" class="btn-primary" style="margin-top:10px;">Reintentar</button>
                         </div>
                     `;
@@ -753,14 +647,11 @@
             }
         }
 
-                async function renderSidebarMenu() {
+        async function renderSidebarMenu() {
             const nav = document.getElementById('category-nav-list');
             if (!nav) return;
             
-            // 1. Determinar qué categoría está activa actualmente
             const currentCat = state.currentCategory || "";
-            
-            // 2. Intentar leer de tabla categories si existe, sino fallback a products
             let catsToRender = [];
             
             try {
@@ -769,23 +660,18 @@
                 if (!catErr && catData && catData.length > 0) {
                     catsToRender = catData.map(c => ({ name: c.name, icon: c.icon || '📦' }));
                 } else {
-                    // Fallback: Extraer únicas de productos actuales
                     const uniqueCats = [...new Set(state.products.map(p => p.category).filter(Boolean))];
                     catsToRender = uniqueCats.sort().map(name => ({ name, icon: '📦' }));
                 }
             } catch (err) {
-                console.warn("Error cargando categorías:", err);
-                // Fallback seguro
                 const uniqueCats = [...new Set(state.products.map(p => p.category).filter(Boolean))];
                 catsToRender = uniqueCats.sort().map(name => ({ name, icon: '📦' }));
             }
 
-            // 3. Construir HTML base con "Todos"
             let html = `<a href="#" data-cat="" class="cat-item ${currentCat === "" ? 'active' : ''}" onclick="setCategory('', event)">
                 <i>🏠</i> Todos los productos
             </a>`;
 
-            // 4. Generar enlaces de categorías dinámicas
             catsToRender.forEach(c => {
                 const isActive = currentCat === c.name ? 'active' : '';
                 html += `<a href="#" data-cat="${escapeHtml(c.name)}" class="cat-item ${isActive}" onclick="setCategory('${escapeHtml(c.name)}', event)">
@@ -793,17 +679,14 @@
                 </a>`;
             });
 
-            // 5. BOTÓN AGREGAR CATEGORÍA (Solo si es Admin)
             if (state.isAdmin) {
                 html += `<button type="button" class="cat-item add-cat-btn" style="margin-top:10px; background:#f8fafc; border:2px dashed #cbd5e1; color:#64748b; font-weight:600; width:calc(100% - 40px); margin-left:20px; padding:10px; cursor:pointer; border-radius:8px; display:block;" onclick="handleAddCategoryClick()">
                     ➕ Nueva Categoría
                 </button>`;
             }
 
-            // 6. Inyectar todo de golpe
             nav.innerHTML = html;
 
-            // 7. Actualizar datalist para autocompletado en editor de productos
             const dl = document.getElementById('cat-options');
             if(dl) {
                 dl.innerHTML = catsToRender.map(c => `<option value="${escapeHtml(c.name)}">`).join('');
@@ -846,7 +729,7 @@
 
             return `
                 <div class="product-card" data-id="${p.id}">
-                                        <div class="admin-controls">
+                    <div class="admin-controls">
                         <button class="ctrl-btn ctrl-edit" onclick="editProduct('${p.id}')" title="Editar Ficha">✏️</button>
                         <button class="ctrl-btn ctrl-supplier" onclick="requestFromSupplier('${p.id}')" title="Pedir al Proveedor">🛒</button>
                         <button class="ctrl-btn ctrl-del" onclick="deleteProduct('${p.id}')" title="Eliminar">🗑️</button>
@@ -907,7 +790,6 @@
 
             const orderCode = generateOrderCode();
             
-            // Guardar Backup Silencioso
             try {
                 await supabaseClient.from('web_orders').insert([{
                     order_code: orderCode,
@@ -923,9 +805,7 @@
                 console.warn("Backup falló", err);
             }
 
-                        const waNumber = state.settings.whatsapp_number || '+18495238873';
-            
-            // Generar link directo al producto para que tú lo veas como Admin
+            const waNumber = state.settings.whatsapp_number || '+18495238873';
             const productUrl = `${window.location.origin}${window.location.pathname}#product-${prod.id}`;
             
             const message = `*NUEVO PEDIDO WEB*\n\n🆔 Código: ${orderCode}\n👤 Cliente: ${name}\n📞 Tel: ${phoneNorm}\n📦 Producto: ${prod.name}\n💰 Precio: RD$ ${parseFloat(prod.price).toFixed(2)}\n${address ? `📍 Dir: ${address}\n` : ''}\n🔗 Ver Artículo: ${productUrl}\n_Enviado desde tienda online._`;
@@ -938,10 +818,9 @@
         });
 
         // ==========================================
-        // PANEL ADMIN & GESTIÓN (CORREGIDO)
+        // PANEL ADMIN & GESTIÓN
         // ==========================================
         
-        // Verificar sesión al cargar (usando localStorage como respaldo simple)
         function checkAdminSession() {
             const savedAdmin = localStorage.getItem('pcd_admin_session');
             if (savedAdmin === 'true') {
@@ -970,23 +849,20 @@
             });
         }
 
-        // Listener para el formulario de Login
         const loginForm = document.getElementById('form-admin-login');
         if(loginForm) {
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const pass = document.getElementById('adm-pass').value;
                 
-                                try {
-                    // Intento de autenticación segura vía Supabase
+                try {
                     const { data, error } = await supabaseClient.auth.signInWithPassword({
-                        email: document.getElementById('adm-email').value, // Lee el hidden input
+                        email: document.getElementById('adm-email').value, 
                         password: pass
                     });
 
                     if (error) throw error;
 
-                    // Éxito
                     state.isAdmin = true;
                     localStorage.setItem('pcd_admin_session', 'true');
                     document.body.classList.add('is-admin');
@@ -1001,13 +877,12 @@
             });
         }
 
-        // Función única para cerrar sesión
         function logoutAdmin() {
             state.isAdmin = false;
-            localStorage.removeItem('pcd_admin_session'); // Limpiar persistencia
+            localStorage.removeItem('pcd_admin_session'); 
             document.body.classList.remove('is-admin');
             showToast("Sesión cerrada", "info");
-            fetchProducts(); // Refrescar para ocultar botones
+            fetchProducts(); 
         }
 
         function editProduct(id) {
@@ -1040,7 +915,7 @@
             });
         }
 
-                function requestFromSupplier(id) {
+        function requestFromSupplier(id) {
             if (!state.isAdmin) {
                 showToast("Acceso restringido", "error");
                 return;
@@ -1051,11 +926,10 @@
 
             if (!prod.supplier_whatsapp) {
                 showToast("⚠️ No hay número de proveedor registrado.", "warning");
-                editProduct(id); // Abre editor para que pongas el número
+                editProduct(id); 
                 return;
             }
 
-            // Link público para que el proveedor vea la foto sin login
             const productUrl = `${window.location.origin}${window.location.pathname}#product-${prod.id}`;
             
             const supplierMessage = `*SOLICITUD DE REPOSICIÓN / INFO*\n\n` +
@@ -1072,7 +946,6 @@
             showToast("Mensaje preparado para proveedor 📲", "success");
         }
 
-        // Form Editor Submit
         document.getElementById('form-product-editor').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('ed-id').value;
@@ -1096,9 +969,8 @@
         });
 
         // ==========================================
-        // GESTIÓN DE CATEGORÍAS (SIMULADA SIN TABLA EXTERNA)
+        // GESTIÓN DE CATEGORÍAS
         // ==========================================
-                        // Variable global para trackear si el modal ya fue inicializado
         let categoryModalInitialized = false;
 
         function handleAddCategoryClick() {
@@ -1107,7 +979,6 @@
                 return;
             }
 
-            // Si el modal no existe, crearlo
             let modal = document.getElementById('modal-add-category');
             if (!modal) {
                 modal = document.createElement('div');
@@ -1136,7 +1007,6 @@
                 document.body.appendChild(modal);
             }
 
-            // Inicializar listener SOLO UNA VEZ
             if (!categoryModalInitialized) {
                 const form = document.getElementById('form-new-cat');
                 if (form) {
@@ -1154,7 +1024,6 @@
                             return;
                         }
 
-                        // Mostrar feedback visual inmediato
                         const submitBtn = form.querySelector('.btn-primary');
                         const originalText = submitBtn.textContent;
                         submitBtn.textContent = "Guardando...";
@@ -1175,7 +1044,7 @@
                                 closeModal('modal-add-category');
                                 nameInput.value = '';
                                 iconInput.value = '';
-                                await fetchProducts(); // Recargar menú lateral
+                                await fetchProducts(); 
                             }
                         } catch (err) {
                             console.error("Exception:", err);
@@ -1190,15 +1059,197 @@
                 }
             }
 
-            // Abrir modal con animación suave
             requestAnimationFrame(() => {
                 modal.classList.remove('hidden');
                 setTimeout(() => modal.classList.add('show'), 10);
             });
         }
 
-                // ==========================================
-        // LÓGICA SCROLL AUTO-HIDE HEADER (AMAZON STYLE)
+        // ==========================================
+        // SISTEMA DE SUBIDA DE FOTOS & NUEVO PRODUCTO
+        // ==========================================
+        
+        let currentImageFile = null; 
+
+        function openNewProductModal() {
+            if (!state.isAdmin) return showToast("Acceso denegado", "error");
+            
+            document.getElementById('form-new-product').reset();
+            document.getElementById('np-id').value = '';
+            document.getElementById('np-preview-img').style.display = 'none';
+            document.getElementById('np-preview-text').style.display = 'block';
+            document.getElementById('new-prod-title').textContent = "➕ Agregar Producto";
+            document.getElementById('np-submit-btn').textContent = "Guardar Producto";
+            currentImageFile = null;
+
+            const dl = document.getElementById('cat-options');
+            if(dl && state.products.length > 0) {
+                 const uniqueCats = [...new Set(state.products.map(p => p.category).filter(Boolean))].sort();
+                 dl.innerHTML = uniqueCats.map(c => `<option value="${escapeHtml(c)}">`).join('');
+            }
+
+            openModal('modal-new-product');
+        }
+
+        document.getElementById('np-file').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showToast("Solo se permiten imágenes", "error");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = document.getElementById('np-preview-img');
+                img.src = event.target.result;
+                img.style.display = 'block';
+                document.getElementById('np-preview-text').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+
+            currentImageFile = file;
+        });
+
+        function compressImage(file, maxWidth = 800, quality = 0.7) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                img.onload = () => {
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+                };
+                img.onerror = reject;
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        document.getElementById('form-new-product').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('np-submit-btn');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Subiendo...";
+
+            try {
+                const name = document.getElementById('np-name').value.trim();
+                const price = parseFloat(document.getElementById('np-price').value);
+                const category = document.getElementById('np-category').value.trim();
+                const stock = parseInt(document.getElementById('np-stock').value) || 0;
+                const desc = document.getElementById('np-desc').value.trim();
+                const supplier = document.getElementById('np-supplier').value.trim();
+                const existingId = document.getElementById('np-id').value;
+
+                let imageUrl = '';
+
+                if (currentImageFile) {
+                    showToast("Optimizando imagen...", "info");
+                    const compressedBlob = await compressImage(currentImageFile);
+                    const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.jpg`;
+                    
+                    const { data, error } = await supabaseClient.storage
+                        .from('productos')
+                        .upload(fileName, compressedBlob, { cacheControl: '3600', upsert: false });
+                    
+                    if (error) throw new Error("Error subiendo foto: " + error.message);
+                    
+                    const { data: urlData } = supabaseClient.storage.from('productos').getPublicUrl(fileName);
+                    imageUrl = urlData.publicUrl;
+                } else if (existingId) {
+                    const oldProd = state.products.find(p => p.id === existingId);
+                    imageUrl = oldProd ? oldProd.image_url : '';
+                }
+
+                const productData = {
+                    name,
+                    price,
+                    category,
+                    stock,
+                    description: desc,
+                    supplier_whatsapp: supplier,
+                    image_url: imageUrl,
+                    is_active: true
+                };
+
+                let result;
+                if (existingId) {
+                    result = await supabaseClient.from('products').update(productData).eq('id', existingId);
+                } else {
+                    result = await supabaseClient.from('products').insert([productData]);
+                }
+
+                if (result.error) throw result.error;
+
+                showToast(existingId ? "Producto actualizado ✅" : "Producto creado ✅", "success");
+                closeModal('modal-new-product');
+                await fetchProducts(); 
+
+            } catch (err) {
+                console.error(err);
+                showToast("Error: " + err.message, "error");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+
+        const originalEditProduct = window.editProduct;
+        window.editProduct = function(id) {
+            const prod = state.products.find(p => p.id === id);
+            if (!prod) return;
+
+            document.getElementById('np-id').value = prod.id;
+            document.getElementById('np-name').value = prod.name;
+            document.getElementById('np-price').value = prod.price;
+            document.getElementById('np-category').value = prod.category || '';
+            document.getElementById('np-stock').value = prod.stock;
+            document.getElementById('np-desc').value = prod.description || '';
+            document.getElementById('np-supplier').value = prod.supplier_whatsapp || '';
+            
+            const imgPrev = document.getElementById('np-preview-img');
+            const txtPrev = document.getElementById('np-preview-text');
+            if (prod.image_url) {
+                imgPrev.src = prod.image_url;
+                imgPrev.style.display = 'block';
+                txtPrev.style.display = 'none';
+            } else {
+                imgPrev.style.display = 'none';
+                txtPrev.style.display = 'block';
+            }
+            
+            document.getElementById('new-prod-title').textContent = "✏️ Editar Producto";
+            document.getElementById('np-submit-btn').textContent = "Actualizar Cambios";
+            currentImageFile = null; 
+
+            openModal('modal-new-product');
+        };
+
+        const observer = new MutationObserver(() => {
+            if (document.body.classList.contains('is-admin')) {
+                document.getElementById('add-product-btn')?.classList.remove('hidden');
+            } else {
+                document.getElementById('add-product-btn')?.classList.add('hidden');
+            }
+        });
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+        // ==========================================
+        // EVENT LISTENERS UI & SCROLL
         // ==========================================
         let lastScrollTop = 0;
         const headerElement = document.getElementById('sticky-header');
@@ -1208,19 +1259,18 @@
             
             let st = window.pageYOffset || document.documentElement.scrollTop;
             
-            // Umbral mínimo para activar (evita micro-jitters)
             if (Math.abs(lastScrollTop - st) <= 5) return;
 
             if (st > lastScrollTop && st > 100) {
-                // Scrolling DOWN -> Hide Header
                 headerElement.classList.add('hidden-on-scroll');
             } else {
-                // Scrolling UP -> Show Header
                 headerElement.classList.remove('hidden-on-scroll');
             }
             
-            lastScrollTop = st <= 0 ? 0 : st; // For Mobile or negative scrolling
+            lastScrollTop = st <= 0 ? 0 : st; 
         }, { passive: true });
+
+        function setupEventListeners() {
             const drawerBtn = document.getElementById('open-drawer-btn');
             const closeBtn = document.getElementById('close-drawer-btn');
             const overlay = document.getElementById('menu-overlay');
@@ -1273,7 +1323,7 @@
             toggleDrawer(false);
         }
 
-                // Manejo de Deep Links (#product-uuid)
+        // Manejo de Deep Links (#product-uuid)
         window.addEventListener('hashchange', handleHashChange);
         
         function handleHashChange() {
@@ -1290,208 +1340,13 @@
                 }, 500);
             }
         }
-                            // ==========================================
-        // SISTEMA DE SUBIDA DE FOTOS & NUEVO PRODUCTO
+
         // ==========================================
-        
-        let currentImageFile = null; // Guarda el archivo temporalmente
-
-        function openNewProductModal() {
-            if (!state.isAdmin) return showToast("Acceso denegado", "error");
-            
-            // Resetear formulario
-            document.getElementById('form-new-product').reset();
-            document.getElementById('np-id').value = '';
-            document.getElementById('np-preview-img').style.display = 'none';
-            document.getElementById('np-preview-text').style.display = 'block';
-            document.getElementById('new-prod-title').textContent = "➕ Agregar Producto";
-            document.getElementById('np-submit-btn').textContent = "Guardar Producto";
-            currentImageFile = null;
-
-            // Cargar categorías disponibles para autocompletar
-            const dl = document.getElementById('cat-options');
-            if(dl && state.products.length > 0) {
-                 const uniqueCats = [...new Set(state.products.map(p => p.category).filter(Boolean))].sort();
-                 dl.innerHTML = uniqueCats.map(c => `<option value="${escapeHtml(c)}">`).join('');
-            }
-
-            openModal('modal-new-product');
-        }
-
-        // Manejar selección de archivo
-        document.getElementById('np-file').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            // Validar tipo
-            if (!file.type.startsWith('image/')) {
-                showToast("Solo se permiten imágenes", "error");
-                return;
-            }
-
-            // Mostrar preview inmediato
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = document.getElementById('np-preview-img');
-                img.src = event.target.result;
-                img.style.display = 'block';
-                document.getElementById('np-preview-text').style.display = 'none';
-            };
-            reader.readAsDataURL(file);
-
-            // Guardar referencia al archivo real
-            currentImageFile = file;
-        });
-
-        // Función auxiliar para comprimir imagen usando Canvas
-        function compressImage(file, maxWidth = 800, quality = 0.7) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                img.onload = () => {
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > maxWidth) {
-                        height *= maxWidth / width;
-                        width = maxWidth;
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
-                };
-                img.onerror = reject;
-                img.src = URL.createObjectURL(file);
-            });
-        }
-
-        // Submit Formulario Nuevo/Editar Producto
-        document.getElementById('form-new-product').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('np-submit-btn');
-            const originalText = submitBtn.textContent;
-            submitBtn.disabled = true;
-            submitBtn.textContent = "Subiendo...";
-
-            try {
-                const name = document.getElementById('np-name').value.trim();
-                const price = parseFloat(document.getElementById('np-price').value);
-                const category = document.getElementById('np-category').value.trim();
-                const stock = parseInt(document.getElementById('np-stock').value) || 0;
-                const desc = document.getElementById('np-desc').value.trim();
-                const supplier = document.getElementById('np-supplier').value.trim();
-                const existingId = document.getElementById('np-id').value;
-
-                let imageUrl = '';
-
-                // 1. Si hay foto nueva, subirla y comprimirla
-                if (currentImageFile) {
-                    showToast("Optimizando imagen...", "info");
-                    const compressedBlob = await compressImage(currentImageFile);
-                    const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.jpg`;
-                    
-                    const { data, error } = await supabaseClient.storage
-                        .from('productos')
-                        .upload(fileName, compressedBlob, { cacheControl: '3600', upsert: false });
-                    
-                    if (error) throw new Error("Error subiendo foto: " + error.message);
-                    
-                    const { data: urlData } = supabaseClient.storage.from('productos').getPublicUrl(fileName);
-                    imageUrl = urlData.publicUrl;
-                } else if (existingId) {
-                    // Si es edición y NO se cambió la foto, mantener la anterior
-                    const oldProd = state.products.find(p => p.id === existingId);
-                    imageUrl = oldProd ? oldProd.image_url : '';
-                }
-
-                // 2. Preparar datos para BD
-                const productData = {
-                    name,
-                    price,
-                    category,
-                    stock,
-                    description: desc,
-                    supplier_whatsapp: supplier,
-                    image_url: imageUrl,
-                    is_active: true
-                };
-
-                // 3. Insertar o Actualizar
-                let result;
-                if (existingId) {
-                    result = await supabaseClient.from('products').update(productData).eq('id', existingId);
-                } else {
-                    result = await supabaseClient.from('products').insert([productData]);
-                }
-
-                if (result.error) throw result.error;
-
-                showToast(existingId ? "Producto actualizado ✅" : "Producto creado ✅", "success");
-                closeModal('modal-new-product');
-                await fetchProducts(); // Recargar catálogo
-
-            } catch (err) {
-                console.error(err);
-                showToast("Error: " + err.message, "error");
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            }
-        });
-
-        // Modificar editProduct existente para usar el nuevo modal
-        const originalEditProduct = window.editProduct;
-        window.editProduct = function(id) {
-            const prod = state.products.find(p => p.id === id);
-            if (!prod) return;
-
-            // Llenar campos del modal nuevo
-            document.getElementById('np-id').value = prod.id;
-            document.getElementById('np-name').value = prod.name;
-            document.getElementById('np-price').value = prod.price;
-            document.getElementById('np-category').value = prod.category || '';
-            document.getElementById('np-stock').value = prod.stock;
-            document.getElementById('np-desc').value = prod.description || '';
-            document.getElementById('np-supplier').value = prod.supplier_whatsapp || '';
-            
-            // Preview de imagen existente
-            const imgPrev = document.getElementById('np-preview-img');
-            const txtPrev = document.getElementById('np-preview-text');
-            if (prod.image_url) {
-                imgPrev.src = prod.image_url;
-                imgPrev.style.display = 'block';
-                txtPrev.style.display = 'none';
-            } else {
-                imgPrev.style.display = 'none';
-                txtPrev.style.display = 'block';
-            }
-            
-            document.getElementById('new-prod-title').textContent = "✏️ Editar Producto";
-            document.getElementById('np-submit-btn').textContent = "Actualizar Cambios";
-            currentImageFile = null; // Resetear subida pendiente
-
-            openModal('modal-new-product');
-        };
-
-        // Mostrar botón "+" cuando entra admin
-        const observer = new MutationObserver(() => {
-            if (document.body.classList.contains('is-admin')) {
-                document.getElementById('add-product-btn')?.classList.remove('hidden');
-            } else {
-                document.getElementById('add-product-btn')?.classList.add('hidden');
-            }
-        });
-        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        // INICIALIZACIÓN FINAL SEGURA
+        // ==========================================
         document.addEventListener('DOMContentLoaded', async () => {
-            checkAdminSession(); // Restaura sesión admin si existía
+            checkAdminSession(); 
             
-            // Cargar tema guardado
             if (localStorage.getItem('pcd_theme') === 'dark') {
                 document.body.classList.add('dark-mode');
                 const tb = document.getElementById('theme-toggle-btn');
@@ -1502,7 +1357,6 @@
             await loadAppSettings();
             await fetchProducts();
             
-            // Procesar hash inicial si existe (para links directos)
             setTimeout(() => {
                 if(window.location.hash) {
                     handleHashChange();
